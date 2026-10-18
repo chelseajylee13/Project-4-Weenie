@@ -54,7 +54,7 @@ Test each result before continuing, including related behavior that already work
 
 Developer approved the static scene and directed work to proceed to Checkpoint 2.
 
-### [ ] Checkpoint 2: Ambient scene behavior and shared controls
+### [x] Checkpoint 2: Ambient scene behavior and shared controls
 
 **Main risk:** Independent CSS effects could begin before Enter or fall out of sync when the experience is paused.
 
@@ -84,7 +84,7 @@ Developer approved the static scene and directed work to proceed to Checkpoint 2
 5. Enable reduced motion, reload, enter, and confirm branches remain still, leaves do not travel, and only calm opacity ambience remains.
 6. Recheck the four target viewport sizes and confirm the page remains non-scrolling.
 
-Leave Checkpoint 2 unchecked until the Developer reports personal verification.
+Checkpoint 2 is complete following the Developer's deployed-site ambient-animation verification recorded below.
 
 ### [x] Checkpoint 3: Ambient audio
 
@@ -120,7 +120,7 @@ Leave Checkpoint 2 unchecked until the Developer reports personal verification.
 
 Checkpoint 3 is complete following the Developer's personal verification of the revised audio mix and shared controls.
 
-### [ ] Checkpoint 4: Story 1 — The Crown in the Trees
+### [x] Checkpoint 4: Story 1 — The Crown in the Trees
 
 **Main risk:** Independent animations, audio elements, and ambient behavior could drift apart or reset incorrectly when the story is paused, resumed, or replayed.
 
@@ -157,11 +157,11 @@ Checkpoint 3 is complete following the Developer's personal verification of the 
 8. Enable reduced motion before loading, then confirm the full narrative remains clear with gentler travel and branch rotation.
 9. Repeat the timing, pause/resume, reset, replay, and reduced-motion checks on a smartphone.
 
-Leave Checkpoint 4 unchecked until the Developer reports personal verification.
+Checkpoint 4 is complete following the Developer's desktop and deployed physical-phone verification recorded below.
 
-**Latest refinement evidence:** Following the Developer's review, the crown was narrowed to approximately the face width and lowered so its curved band overlaps the upper forehead. Its three original branch-shaped SVG sections retain separate hinge points while the complete assembly settles downward into one connected crowned-face silhouette from 3.5-5.5 seconds. The held pose and leaf transition retain the existing timing. This records implementation work only; Developer verification remains incomplete.
+**Latest refinement evidence:** Following the Developer's review, the crown was narrowed to approximately the face width and lowered so its curved band overlaps the upper forehead. Its three original branch-shaped SVG sections retain separate hinge points while the complete assembly settles downward into one connected crowned-face silhouette from 3.5-5.5 seconds. The held pose and leaf transition retain the existing timing. The final Developer verification is recorded below.
 
-### [ ] Checkpoint 5: Discoverable lantern interaction
+### [x] Checkpoint 5: Discoverable lantern interaction
 
 **Main risk:** Rapid input, pause/resume, hint timers, and story reset could disagree about progress or start duplicate audio and story instances.
 
@@ -197,10 +197,10 @@ Leave Checkpoint 4 unchecked until the Developer reports personal verification.
 8. Complete Story 1, confirm the hollow returns to normal, then trigger and replay it again with three new activations.
 9. Repeat with Tab, Enter, and Space; confirm visible focus, descriptive announcements for all three stages, and appropriate post-story focus return.
 10. Test reduced motion and confirm all three awakening stages, hints, story, and replay remain complete with restrained lighting and opacity.
-11. Temporarily make a feedback WAV unavailable and confirm visual progress and Story 1 still work.
+11. Optional resilience exercise: temporarily make a feedback WAV unavailable and confirm visual progress and Story 1 still work. Record this separately; it is not required for Phase 1 completion.
 12. Repeat interaction, pause, replay, keyboard, and reduced-motion checks on a smartphone.
 
-Leave Checkpoint 5 unchecked until the Developer reports personal verification.
+Checkpoint 5 is complete following the Developer's desktop and deployed physical-phone verification recorded below. The optional missing-audio exercise remains separate and unperformed.
 
 ## Evidence and revisions
 
@@ -269,7 +269,7 @@ Agent checks:
 - Agent source check: all ambient animation assignments require `data-entered="true"`; no audio, trigger logic, hints, input locking, or Story 1 sequence was added.
 - Developer verification: Play/Pause works and the scene does not scroll. The Developer reported that the lantern flicker was too subtle and branch sway was not visibly apparent.
 - Revision: increased the lantern's opacity and halo-size contrast while retaining eased, non-flashing changes. Replaced percentage-based branch origins with explicit SVG pivot coordinates and increased the slow sway to a visible but restrained range.
-- Developer re-verification of the revised flicker and branch sway is pending. Checkpoint 2 remains unchecked.
+- At this stage, Developer re-verification of the revised flicker and branch sway was pending. The final deployed-site report below records the ambient animation as passed, completing Checkpoint 2.
 
 ### Checkpoint 3 implementation evidence
 
@@ -290,9 +290,12 @@ The following results are the Developer's direct testing report, not Agent imple
 - [x] Reduced-motion behavior — Passed.
 - [x] Keyboard accessibility and progressive hints — Passed.
 - [x] General physical-smartphone operation on the deployed HTTPS experience — Passed. The Developer reports that the public site works well on a physical smartphone.
-- [ ] Detailed physical-smartphone timing/audio-synchronization and reduced-motion checks — Not explicitly reported.
+- [x] Physical-smartphone story duration — Approximately seven seconds on iPhone 18 Pro / Chrome. This satisfies the brief's required 5–10-second range.
+- [x] Physical-smartphone Story 1 audio synchronization — Passed.
+- [x] Physical-smartphone Pause/Resume — Passed.
+- [x] Physical-smartphone reduced-motion behavior — Passed.
 
-Developer observations: none recorded during the desktop verification. Checkpoints 4 and 5 remain unchecked because the phone-specific detailed timing/audio-synchronization and reduced-motion checks have not been explicitly reported.
+Developer observations: none recorded during the desktop verification. The final physical-phone results were reported without additional observations. Checkpoints 4 and 5 are complete.
 
 ### Checkpoint 4 implementation evidence
 
@@ -315,12 +318,12 @@ Developer observations: none recorded during the desktop verification. Checkpoin
 - Developer review of the full-body refinement: the separate character, crown placement, and bow remained visually confusing, so the Developer did not approve Checkpoint 4.
 - Current refinement: replaced the external full-body King with a subtle face, amber eyes, and collar clipped inside the tree hollow. The tree itself now holds the crown, and a three-and-a-half-degree rigid tilt communicates a dignified nod.
 - Current choreography: branches fold and the crown forms during 0–2 seconds; the crown and hollow presence become readable during 2–4.5 seconds; the crowned tree holds and nods during 4.5–6.5 seconds; the crown becomes leaves and the complete scene resets during 6.5–8 seconds.
-- Current-refinement agent check: `node --check app.js` passed. Source inspection confirmed the prior full-body cloak, upper-body, and arm pieces are absent; the hollow-clipped presence and tree crown are present; Story 1 remains eight seconds; Play/Pause remains anchored top-right; and Checkpoint 4 remains unchecked.
+- Current-refinement agent check: `node --check app.js` passed. Source inspection confirmed the prior full-body cloak, upper-body, and arm pieces are absent; the hollow-clipped presence and tree crown are present; Story 1 remains configured for eight seconds; and Play/Pause remains anchored top-right. Checkpoint 4 was still awaiting Developer verification at this stage and is completed by the later report below.
 - Current-refinement agent check: a local server returned HTTP 200 for the revised page, stylesheet, script, and unchanged Story 1 WAV. No rendered visual result is claimed.
 - Crown-fit refinement: replaced the wide crown geometry with a compact face-width design, moved its band onto the upper forehead, updated all three hinge origins, and relocated the glowing leaves to match the new crown. The crown now settles downward while its branch points fold inward, then holds in contact with the face before dissolving.
 - Crown-fit agent check: `node --check` passed for `app.js` and the unchanged Story 1 audio-build script; Git whitespace validation passed; and a local server returned HTTP 200 for the page, stylesheet, and application script. No rendered visual result is claimed.
 - Developer visual approval: the latest crown placement and character design are approved. The crown now reads as part of the King's head, making the reveal substantially clearer. Preserve the King, crown, and surrounding scene unless a verified issue requires a change.
-- Earlier verification boundary: at the time of the visual approval, only the design was verified. The later direct Developer report above confirms desktop timing/audio synchronization, Play/Pause, replay/reset, and reduced motion, and the post-deployment report confirms general physical-smartphone operation. Detailed timing/audio synchronization and reduced motion on the physical phone remain unreported, so Checkpoint 4 remains unchecked.
+- Earlier verification boundary: at the time of the visual approval, only the design was verified. The later direct Developer reports above confirm desktop timing/audio synchronization, Play/Pause, replay/reset, and reduced motion plus the required deployed physical-phone checks. Checkpoint 4 is complete.
 - Post-deployment Developer approval: the final King and crown design are approved without further visual changes.
 
 ### Checkpoint 5 implementation evidence
@@ -357,16 +360,83 @@ Developer observations: none recorded during the desktop verification. Checkpoin
 - The Developer enabled GitHub Pages with GitHub Actions as the source and manually reran the deployment workflow.
 - Successful deployment result: workflow-dispatch run `39089753244` completed successfully for commit `3010a66`. The confirmed public URL is `https://chelseajylee13.github.io/Project-4-Weenie/`.
 - Post-deployment Agent checks: the page, stylesheet, application script, ambient WAV, Story 1 WAV, and lantern feedback WAV files are reachable over HTTPS. Seven endpoints returned HTTP 200 to direct HEAD checks; the remaining first lantern cue returned HTTP 206 to a one-byte ranged request after transient CDN connection resets, confirming that the asset is available.
-- Post-deployment Developer check: the public HTTPS experience works well on a physical smartphone. Detailed phone timing/audio synchronization and reduced-motion behavior were not explicitly reported. Checkpoints 4 and 5 remain open pending only the verification distinctions recorded above.
+- Post-deployment Developer check: the public HTTPS experience works well on an iPhone 18 Pro in Chrome. The later final report confirms the ambient animation, approximately seven-second story duration, Story 1 audio synchronization, physical-phone Pause/Resume, and physical-phone reduced motion all pass.
 
-### Remaining Phase 1 Developer verification
+### Phase 1 completion
 
-- [ ] Checkpoint 2 refinement: confirm the revised lantern flicker is clearly noticeable but restrained and that the three branch groups visibly sway after Enter. Also confirm Play/Pause freezes them and reduced-motion mode keeps the branches still.
-- [ ] Physical smartphone detail: time Story 1 from its full-sequence start to reset, confirm audio remains synchronized, and confirm a mid-story pause/resume continues from the same position.
-- [ ] Physical smartphone reduced motion: enable the device preference before loading and confirm the full three-stage discovery and Story 1 remain complete with calmer motion.
-- [ ] Optional resilience exercise listed in Checkpoint 5: deliberately make one lantern feedback WAV unavailable in a local test and confirm visual progress and Story 1 still work. The failure-handling code was inspected by the Agent, but the Developer has not explicitly reported this test.
+- [x] Checkpoint 2 ambient animation — Passed on the deployed website.
+- [x] Story 1 duration — Approximately seven seconds, within the required 5–10-second range.
+- [x] Story 1 audio synchronization — Passed.
+- [x] Physical-phone Pause/Resume — Passed.
+- [x] Physical-phone reduced motion — Passed.
+- [x] Device/browser used for final verification — iPhone 18 Pro / Chrome.
+- [ ] Optional missing-audio resilience exercise — Not reported and not required for Phase 1 completion. The Agent inspected the graceful failure-handling path, but no Developer runtime result is claimed.
 
-No further King, crown, interaction, scene, or audio-design approval is pending. Keep Checkpoints 2, 4, and 5 open until the applicable items above are reported.
+All required Phase 1 acceptance criteria are satisfied. Checkpoints 1–5 are complete, the approved public HTTPS build is verified on a physical smartphone, and Phase 1 is finished. No further King, crown, interaction, scene, or audio-design approval is pending.
+
+## Proposed Phase 2 plan — awaiting Developer approval
+
+This plan preserves the completed Phase 1 experience and follows the same small-checkpoint workflow. No Phase 2 implementation begins until the Developer approves the plan and the consequential creative decisions for each story.
+
+### Approved Phase 2 requirements
+
+- Complete the two approved premises: *The Shadow That Escaped* and *The King's Midnight Invitation*.
+- Give each story a discoverable trigger with unique audiovisual feedback, visible progress that is not color-only, progressive hints, input locking, replay, keyboard access, reduced-motion behavior, and shared Play/Pause support.
+- Keep each story within the brief's 5–10-second range with a readable beginning, middle, and end.
+- Preserve the approved scene, King and crown, Story 1, ambience, audio behavior, accessibility, responsive layout, and public deployment unless testing identifies a specific defect.
+- Conduct peer playtesting on smartphones without explaining the interactions first; record observations separately from interpretation, revise consequential problems, and verify the complete three-story experience.
+
+### Open creative decisions requiring approval
+
+- The exact Story 2 and Story 3 triggers, progress feedback, hint text, timelines, and sound palettes are not yet approved.
+- Story 2 should use the existing cottage as its principal stage and show one playful escaped shadow returning without becoming threatening. Story 3 should connect the King, tower/moon, and a miniature magical carnival without obscuring the established focal point. These are proposed constraints, not approved choreography.
+- Any new external audio must be individually verified as CC0 or public domain and recorded in `research.md` before integration. Original locally generated cues remain an option.
+
+### [ ] Phase 2 Checkpoint 6: Phase 1 peer discovery playtest
+
+- Recruit peer Users and let each person explore the deployed site on a smartphone without instructions or assistance.
+- Record whether they enter successfully, notice Play/Pause, discover the lantern, understand all three awakening stages, complete Story 1, and attempt replay.
+- Record non-identifying observations and post-test comments, separating what Users did or said from interpretation.
+- Identify only consequential revisions; obtain Developer approval before changing completed Phase 1 behavior.
+
+### [ ] Phase 2 Checkpoint 7: Specify and storyboard Story 2
+
+- Turn *The Shadow That Escaped* into an approved 5–10-second beginning/middle/end timeline centered on the cottage.
+- Approve its trigger, three-step or equivalent progress language, provisional hints, shadow-puppet artwork, reduced-motion telling, and licensed/original audio plan.
+- Resolve how its discovery state coexists with Story 1 without competing targets or simultaneous progress.
+- Do not code until the storyboard and acceptance criteria are approved.
+
+### [ ] Phase 2 Checkpoint 8: Implement and verify Story 2
+
+- First build the coordinated audiovisual timeline behind a development-only test control.
+- After the story is approved, add its discoverable interaction, feedback, hints, replay/reset, keyboard behavior, and shared state-controller integration.
+- Verify timing, audio synchronization, pause/resume, interaction locking, reduced motion, repeated replay, and regression safety for Story 1 before deployment.
+
+### [ ] Phase 2 Checkpoint 9: Specify and storyboard Story 3
+
+- Turn *The King's Midnight Invitation* into an approved 5–10-second timeline in which the King conjures a miniature magical carnival.
+- Approve how the existing King presence, tower/moon, and carnival elements connect; approve the trigger, progress language, hints, reduced-motion telling, and audio plan.
+- Protect visual clarity on narrow phones and musical space across all three stories.
+- Do not code until the storyboard and acceptance criteria are approved.
+
+### [ ] Phase 2 Checkpoint 10: Implement and verify Story 3
+
+- Build and approve the audiovisual timeline before adding its final discoverable trigger.
+- Integrate feedback, hints, replay/reset, keyboard access, interaction locking, shared Play/Pause, and reduced motion.
+- Verify all three stories can be discovered and replayed independently without duplicated audio, stale artwork, conflicting timers, or state leakage.
+
+### [ ] Phase 2 Checkpoint 11: Complete-app peer playtest and revision
+
+- Deploy the three-story build and repeat unassisted smartphone playtesting with peers.
+- Observe discovery order, time to discover each trigger, hint usefulness, story comprehension, replay behavior, comfort with the spooky tone, and interest in exploring further.
+- Prioritize revisions by frequency and impact, obtain Developer approval for consequential changes, then implement and retest one focused revision group at a time.
+
+### [ ] Phase 2 Checkpoint 12: Final audit, deployment, and debrief
+
+- Verify every brief requirement, asset credit, source/license record, keyboard path, touch target, reduced-motion path, audio state, timer, replay path, and common portrait viewport.
+- Confirm the production artifact contains every new runtime asset but excludes source documents and build materials.
+- Verify the final HTTPS deployment and complete three-story app on a physical smartphone.
+- Add and complete the required `debrief.md`, update the project documents with final evidence, and close Phase 2 only after Developer verification.
 
 ## Saving transcripts
 
