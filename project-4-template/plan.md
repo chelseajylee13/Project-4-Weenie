@@ -289,9 +289,10 @@ The following results are the Developer's direct testing report, not Agent imple
 - [x] Repeated story replay and reset — Passed.
 - [x] Reduced-motion behavior — Passed.
 - [x] Keyboard accessibility and progressive hints — Passed.
-- [ ] Physical-smartphone verification on the deployed HTTPS experience — Pending. The Developer's report included a passed physical-smartphone result, but explicitly requires this final item to remain pending until the public deployment is tested.
+- [x] General physical-smartphone operation on the deployed HTTPS experience — Passed. The Developer reports that the public site works well on a physical smartphone.
+- [ ] Detailed physical-smartphone timing/audio-synchronization and reduced-motion checks — Not explicitly reported.
 
-Developer observations: none recorded. Checkpoints 4 and 5 remain unchecked until deployed-HTTPS smartphone verification is reported.
+Developer observations: none recorded during the desktop verification. Checkpoints 4 and 5 remain unchecked because the phone-specific detailed timing/audio-synchronization and reduced-motion checks have not been explicitly reported.
 
 ### Checkpoint 4 implementation evidence
 
@@ -319,7 +320,8 @@ Developer observations: none recorded. Checkpoints 4 and 5 remain unchecked unti
 - Crown-fit refinement: replaced the wide crown geometry with a compact face-width design, moved its band onto the upper forehead, updated all three hinge origins, and relocated the glowing leaves to match the new crown. The crown now settles downward while its branch points fold inward, then holds in contact with the face before dissolving.
 - Crown-fit agent check: `node --check` passed for `app.js` and the unchanged Story 1 audio-build script; Git whitespace validation passed; and a local server returned HTTP 200 for the page, stylesheet, and application script. No rendered visual result is claimed.
 - Developer visual approval: the latest crown placement and character design are approved. The crown now reads as part of the King's head, making the reveal substantially clearer. Preserve the King, crown, and surrounding scene unless a verified issue requires a change.
-- Verification boundary: this approval covers the visual revision only. Story timing, synchronized Play/Pause, audio behavior, reset, replay, reduced motion, and smartphone behavior remain unverified unless the Developer reports those checks separately. Checkpoint 4 remains unchecked.
+- Earlier verification boundary: at the time of the visual approval, only the design was verified. The later direct Developer report above confirms desktop timing/audio synchronization, Play/Pause, replay/reset, and reduced motion, and the post-deployment report confirms general physical-smartphone operation. Detailed timing/audio synchronization and reduced motion on the physical phone remain unreported, so Checkpoint 4 remains unchecked.
+- Post-deployment Developer approval: the final King and crown design are approved without further visual changes.
 
 ### Checkpoint 5 implementation evidence
 
@@ -339,8 +341,9 @@ Developer observations: none recorded. Checkpoints 4 and 5 remain unchecked unti
 - The development story button is hidden normally and can be exposed only on localhost with `?storyTest=1`; a public hostname cannot enable it through that query parameter.
 - Agent checks: `node --check` passed for `app.js` and all three audio-build scripts; the feedback build completed; Git whitespace validation passed; and a local server returned HTTP 200 for the page, stylesheet, application script, both existing WAV files, and all three new feedback WAV files.
 - Developer visual approval (latest review): the three-stage interaction now reads as one continuous reveal. The first activation reveals the King's dark silhouette, the second reveals the eyes within that same silhouette, and the third continues into the full King-and-crown animation without duplicate face or eye artwork. Preserve the approved King, crown, face, scene composition, and transition effects unless a later verification test identifies a specific defect.
-- Verification boundary: this approval covers the visual direction and three-stage transition only. Story/audio timing, shared Play/Pause behavior, repeated replay/reset, reduced-motion behavior, keyboard and progressive-hint behavior, and physical-smartphone behavior remain pending Developer verification. Checkpoints 4 and 5 remain unchecked.
-- Verification limit: no controlled rendered-browser, listening, touch-device, or elapsed-time interaction test was available. The Developer must verify visual placement, audible character, actual hint timing, synchronized pause/resume, replay, keyboard behavior, reduced motion, and smartphone behavior. Checkpoint 5 remains unchecked.
+- Earlier verification boundary: at the time of the visual approval, only the visual direction and transition were verified. The later direct Developer report above confirms desktop timing/audio synchronization, shared Play/Pause, replay/reset, reduced motion, keyboard behavior, and progressive hints.
+- Agent verification limit: the Agent did not independently perform rendered-browser, listening, touch-device, or elapsed-time interaction tests; those results are attributed only to the Developer where reported.
+- Post-deployment Developer approval: the final King and crown design and the complete silhouette → glowing eyes → full King-and-crown lantern interaction are approved. The deployed experience also works well in general on the Developer's physical smartphone. This does not claim phone-specific reduced-motion or detailed timing verification.
 
 ### GitHub Pages deployment evidence
 
@@ -351,8 +354,19 @@ Developer observations: none recorded. Checkpoints 4 and 5 remain unchecked unti
 - Pre-deployment Agent checks: `node --check` passed for the application and all three audio-building scripts; Git whitespace validation passed; all eight required runtime files exist; and a locally staged artifact contained exactly the expected eight files.
 - Source push result: commit `1b3337f` was pushed successfully to `origin/main` with the complete project source and deployment workflow.
 - First GitHub Actions result: run `39089211258` completed with failure. Checkout and public-file staging succeeded, but `actions/configure-pages@v5` failed because GitHub Pages is not yet enabled and configured to use GitHub Actions for this repository. Artifact upload and deployment were therefore skipped; no successful public URL is claimed.
-- Required manual repository setting: an owner must open **Settings → Pages → Build and deployment** and select **GitHub Actions** as the source, then rerun the workflow. The separate local GitHub CLI login is invalid, so the Agent cannot change this owner setting through the API.
-- Published-HTTPS asset checks and physical-smartphone verification remain pending until that rerun succeeds. Checkpoints 4 and 5 remain open.
+- The Developer enabled GitHub Pages with GitHub Actions as the source and manually reran the deployment workflow.
+- Successful deployment result: workflow-dispatch run `39089753244` completed successfully for commit `3010a66`. The confirmed public URL is `https://chelseajylee13.github.io/Project-4-Weenie/`.
+- Post-deployment Agent checks: the page, stylesheet, application script, ambient WAV, Story 1 WAV, and lantern feedback WAV files are reachable over HTTPS. Seven endpoints returned HTTP 200 to direct HEAD checks; the remaining first lantern cue returned HTTP 206 to a one-byte ranged request after transient CDN connection resets, confirming that the asset is available.
+- Post-deployment Developer check: the public HTTPS experience works well on a physical smartphone. Detailed phone timing/audio synchronization and reduced-motion behavior were not explicitly reported. Checkpoints 4 and 5 remain open pending only the verification distinctions recorded above.
+
+### Remaining Phase 1 Developer verification
+
+- [ ] Checkpoint 2 refinement: confirm the revised lantern flicker is clearly noticeable but restrained and that the three branch groups visibly sway after Enter. Also confirm Play/Pause freezes them and reduced-motion mode keeps the branches still.
+- [ ] Physical smartphone detail: time Story 1 from its full-sequence start to reset, confirm audio remains synchronized, and confirm a mid-story pause/resume continues from the same position.
+- [ ] Physical smartphone reduced motion: enable the device preference before loading and confirm the full three-stage discovery and Story 1 remain complete with calmer motion.
+- [ ] Optional resilience exercise listed in Checkpoint 5: deliberately make one lantern feedback WAV unavailable in a local test and confirm visual progress and Story 1 still work. The failure-handling code was inspected by the Agent, but the Developer has not explicitly reported this test.
+
+No further King, crown, interaction, scene, or audio-design approval is pending. Keep Checkpoints 2, 4, and 5 open until the applicable items above are reported.
 
 ## Saving transcripts
 
