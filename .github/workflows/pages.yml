@@ -1,0 +1,71 @@
+name: Deploy Phase 1 to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Stage public website files
+        shell: bash
+        run: |
+          set -euo pipefail
+          app_root="project-4-template"
+          public_root="dist"
+
+          required_files=(
+            "index.html"
+            "styles.css"
+            "app.js"
+            "assets/audio/ambient-midnight.wav"
+            "assets/audio/story-one-crown.wav"
+            "assets/audio/lantern-step-1.wav"
+            "assets/audio/lantern-step-2.wav"
+            "assets/audio/lantern-step-3.wav"
+          )
+
+          for relative_path in "${required_files[@]}"; do
+            test -f "$app_root/$relative_path"
+          done
+
+          mkdir -p "$public_root/assets/audio"
+          cp "$app_root/index.html" "$public_root/"
+          cp "$app_root/styles.css" "$public_root/"
+          cp "$app_root/app.js" "$public_root/"
+          cp "$app_root/assets/audio/ambient-midnight.wav" "$public_root/assets/audio/"
+          cp "$app_root/assets/audio/story-one-crown.wav" "$public_root/assets/audio/"
+          cp "$app_root/assets/audio/lantern-step-1.wav" "$public_root/assets/audio/"
+          cp "$app_root/assets/audio/lantern-step-2.wav" "$public_root/assets/audio/"
+          cp "$app_root/assets/audio/lantern-step-3.wav" "$public_root/assets/audio/"
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload GitHub Pages artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: dist
+
+      - name: Deploy GitHub Pages artifact
+        id: deployment
+        uses: actions/deploy-pages@v4

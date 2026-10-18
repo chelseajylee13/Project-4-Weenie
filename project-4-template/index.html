@@ -1,0 +1,381 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#17131f">
+    <title>Once Upon a Midnight: The King of Shadows</title>
+    <meta
+      name="description"
+      content="A handcrafted shadow-puppet Halloween story set beneath a midnight tree."
+    >
+    <script>
+      document.documentElement.dataset.reducedMotion = window.matchMedia(
+        "(prefers-reduced-motion: reduce)"
+      ).matches;
+    </script>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <main class="app-shell" aria-label="Once Upon a Midnight interactive scene">
+      <section
+        class="paper-stage"
+        id="experience"
+        aria-labelledby="scene-title"
+        aria-hidden="true"
+        inert
+      >
+        <h1 class="visually-hidden" id="scene-title" tabindex="-1">Once Upon a Midnight: The King of Shadows</h1>
+
+        <svg
+          class="scene-art"
+          viewBox="0 0 390 844"
+          preserveAspectRatio="xMidYMid slice"
+          role="img"
+          aria-labelledby="scene-art-title scene-art-description"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <title id="scene-art-title">A cut-paper forest beneath a violet moon</title>
+          <desc id="scene-art-description">
+            A giant hollow tree holds a glowing lantern. A crooked cottage, a distant tower,
+            layered forests, and curled foreground leaves surround it like a paper theater.
+          </desc>
+
+          <defs>
+            <linearGradient id="night-sky" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#211a32"/>
+              <stop offset="0.58" stop-color="#3d304f"/>
+              <stop offset="1" stop-color="#77617c"/>
+            </linearGradient>
+            <radialGradient id="moon-haze">
+              <stop offset="0" stop-color="#f0dfb8" stop-opacity=".32"/>
+              <stop offset="1" stop-color="#f0dfb8" stop-opacity="0"/>
+            </radialGradient>
+            <radialGradient id="lantern-light">
+              <stop offset="0" stop-color="#ffd580" stop-opacity=".68"/>
+              <stop offset=".55" stop-color="#dc9346" stop-opacity=".22"/>
+              <stop offset="1" stop-color="#dc9346" stop-opacity="0"/>
+            </radialGradient>
+            <radialGradient id="royal-backlight">
+              <stop offset="0" stop-color="#f2b95f" stop-opacity=".55"/>
+              <stop offset=".45" stop-color="#9c6b67" stop-opacity=".24"/>
+              <stop offset="1" stop-color="#2a1d38" stop-opacity="0"/>
+            </radialGradient>
+            <linearGradient id="lantern-glass" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#ffe8a8"/>
+              <stop offset="1" stop-color="#d78832"/>
+            </linearGradient>
+            <filter id="paper-shadow-far" x="-30%" y="-30%" width="160%" height="160%">
+              <feDropShadow dx="0" dy="3" stdDeviation="2" flood-color="#09070d" flood-opacity=".35"/>
+            </filter>
+            <filter id="paper-shadow-mid" x="-30%" y="-30%" width="160%" height="160%">
+              <feDropShadow dx="0" dy="5" stdDeviation="3" flood-color="#09070d" flood-opacity=".52"/>
+            </filter>
+            <filter id="paper-shadow-near" x="-30%" y="-30%" width="160%" height="160%">
+              <feDropShadow dx="0" dy="7" stdDeviation="4" flood-color="#08060b" flood-opacity=".72"/>
+            </filter>
+            <filter id="hand-cut-edge" x="-20%" y="-20%" width="140%" height="140%">
+              <feTurbulence type="fractalNoise" baseFrequency=".018 .11" numOctaves="1" seed="19" result="paperWarp"/>
+              <feDisplacementMap in="SourceGraphic" in2="paperWarp" scale="1.15" xChannelSelector="R" yChannelSelector="G" result="cutPaper"/>
+              <feDropShadow in="cutPaper" dx="0" dy="7" stdDeviation="4" flood-color="#08060b" flood-opacity=".72"/>
+            </filter>
+            <filter id="soft-glow" x="-100%" y="-100%" width="300%" height="300%">
+              <feGaussianBlur stdDeviation="8"/>
+            </filter>
+            <clipPath id="tree-hollow-clip">
+              <path d="M174 527c12-24 32-37 55-30 18 6 27 25 24 51-4 37-20 65-43 67-24 2-39-34-36-88z"/>
+            </clipPath>
+            <pattern id="paper-grain" width="18" height="18" patternUnits="userSpaceOnUse">
+              <circle cx="3" cy="5" r=".7" fill="#fff" opacity=".05"/>
+              <circle cx="14" cy="12" r=".6" fill="#08070b" opacity=".09"/>
+              <path d="M1 16 7 15M11 3l5-1" stroke="#fff" stroke-width=".45" opacity=".04"/>
+            </pattern>
+          </defs>
+
+          <rect width="390" height="844" fill="url(#night-sky)"/>
+
+          <g id="star-cutouts" fill="#eadbbd" opacity=".62" aria-hidden="true">
+            <path d="m59 154 1.6 4.2 4.4 1.5-4.4 1.6-1.6 4.3-1.6-4.3-4.4-1.6 4.4-1.5z"/>
+            <path d="m104 205 1 2.8 2.9 1-2.9 1-1 2.8-1.1-2.8-2.8-1 2.8-1z"/>
+            <path d="m350 230 1.2 3.1 3.1 1.1-3.1 1.1-1.2 3.2-1.1-3.2-3.2-1.1 3.2-1.1z"/>
+            <circle cx="151" cy="139" r="1.4"/>
+            <circle cx="366" cy="176" r="1.2"/>
+          </g>
+
+          <g id="moon-layer" filter="url(#paper-shadow-far)" aria-hidden="true">
+            <circle cx="309" cy="153" r="94" fill="url(#moon-haze)"/>
+            <circle cx="309" cy="153" r="46" fill="#e8d8b7"/>
+            <path d="M326 112c-23 8-38 28-37 51 1 17 11 30 24 39-28 1-51-20-52-48-2-28 18-52 45-56 8-1 15 0 20 2z" fill="#aa94af" opacity=".48"/>
+            <circle cx="326" cy="139" r="3" fill="#8e7897" opacity=".25"/>
+            <circle cx="294" cy="173" r="2" fill="#8e7897" opacity=".22"/>
+          </g>
+
+          <g id="distant-sky-layer" filter="url(#paper-shadow-far)" aria-hidden="true">
+            <path d="M0 374c31-31 54-38 79-30 23-28 49-37 78-22 29-24 59-25 86-5 31-21 62-19 91 8 20-9 38-7 56 4v183H0z" fill="#382b46"/>
+            <path d="M0 408c24-18 45-21 66-10 18-32 43-42 71-25 25-27 55-30 82-8 28-24 57-22 84 6 33-22 61-18 87 10v150H0z" fill="#2b2235"/>
+          </g>
+
+          <g id="tower-layer" filter="url(#paper-shadow-far)" opacity=".86" aria-hidden="true">
+            <path d="M281 507q29-24 64 0z" fill="#211a29"/>
+            <path d="M297 497 294 337l15-10 14 10 3 160z" fill="#211b28" stroke="#604a68" stroke-width="1.25"/>
+            <path d="m284 341 24-62 27 61-26-9z" fill="#18141e" stroke="#4b3853" stroke-width="1"/>
+            <path d="M306 281v-27h4v26zM310 254l16 7-16 7z" fill="#17121c"/>
+            <path d="M293 369h-9l2-31 9 7zM324 368h10l-2-31-9 8z" fill="#1b1621"/>
+            <path d="M302 357q7-13 14 0v29h-14z" fill="#b67b40" opacity=".46"/>
+            <path d="M308 359v26M302 371h14" stroke="#39283e" stroke-width="2" opacity=".75"/>
+            <path d="M303 454q8-16 16 0v43h-16z" fill="#0e0b12"/>
+            <path d="M292 399h36M291 412h37" stroke="#5d4763" stroke-width="2" opacity=".55"/>
+            <path d="M287 506c-20 18-29 39-27 62" fill="none" stroke="#89708c" stroke-width="3" opacity=".18"/>
+            <circle cx="309" cy="417" r="2.5" fill="#8d6e8c" opacity=".5"/>
+          </g>
+
+          <g id="forest-layer" filter="url(#paper-shadow-far)" aria-hidden="true">
+            <path d="M0 480c17-49 34-74 49-77l-11 42c20-47 38-71 57-72l-9 46c19-52 39-81 61-84l-12 57c21-35 41-50 60-46l-2 179H0z" fill="#241c2d"/>
+            <path d="M181 481c17-44 34-66 51-68l-8 38c20-55 40-83 62-84l-11 50c18-43 37-64 55-63l-6 44c23-39 45-54 66-46v181H181z" fill="#1c1722"/>
+            <path d="M11 441c23-10 42-8 57 5M105 413c22-9 41-6 55 9M251 423c19-8 36-5 48 8M329 405c18-6 35-2 49 10" fill="none" stroke="#493653" stroke-width="1.5" opacity=".48"/>
+          </g>
+
+          <g id="midground-bank-layer" filter="url(#paper-shadow-mid)" aria-hidden="true">
+            <path d="M0 539c46-20 91-20 136 0 44 19 86 16 126-9 46-29 89-27 128 7v118H0z" fill="#211925" opacity=".86"/>
+            <path d="M0 539c46-20 91-20 136 0 44 19 86 16 126-9 46-29 89-27 128 7" fill="none" stroke="#5b435e" stroke-width="1.25" opacity=".4"/>
+            <path d="M17 538q9-20 18 0M147 542q10-24 20-1M274 525q9-20 18 0M354 526q8-17 16 1" fill="none" stroke="#38283d" stroke-width="4" stroke-linecap="round"/>
+          </g>
+
+          <g id="cottage-layer" filter="url(#paper-shadow-mid)" opacity=".9" aria-hidden="true">
+            <path d="M37 536 45 433l91 5 10 100z" fill="#211a27" stroke="#4a394e" stroke-width="1"/>
+            <path d="M27 441 84 379l72 67-67-14z" fill="#17131d"/>
+            <path d="m101 398 6-62 17 3-4 74z" fill="#1a151f"/>
+            <path d="m35 431 50-48 58 55-54-12z" fill="none" stroke="#60485f" stroke-width="2" opacity=".5"/>
+            <path d="M55 461h29l-2 36H53z" fill="#bc7e3e" opacity=".7"/>
+            <path d="m61 467 17 1-1 23-18-1z" fill="#e8b762" opacity=".52"/>
+            <path d="M104 469q13-22 26 0v68h-26z" fill="#0e0b11"/>
+            <path d="M68 462v34M54 478h29" stroke="#33263a" stroke-width="3"/>
+            <circle cx="122" cy="501" r="2.5" fill="#c08442"/>
+            <path d="M43 520c18-7 33-6 47 2M91 532c17-5 33-4 49 2" fill="none" stroke="#4b374f" stroke-width="1.5" opacity=".5"/>
+          </g>
+
+          <g id="tree-layer" filter="url(#hand-cut-edge)" aria-hidden="true">
+            <g id="tree-trunk">
+              <path d="M159 806c13-67 11-126 3-185-8-61-3-113 14-160 11-31 13-66 4-103l33-12c14 42 13 79 0 114-8 23-8 44 0 63 15 35 24 75 20 119-5 55 2 110 22 164l-42-7-18 14-17-13z" fill="#17131b"/>
+              <path d="M177 795c16-58 17-116 7-174-8-49-4-94 12-135-2 57 14 87 15 132 0 59 5 114 20 174l-23-7-14 11z" fill="#2b2130" opacity=".72"/>
+              <path d="M174 527c12-24 32-37 55-30 18 6 27 25 24 51-4 37-20 65-43 67-24 2-39-34-36-88z" fill="#08070a" stroke="#49374d" stroke-width="3"/>
+              <path d="M184 531c10-18 25-27 41-22 13 4 19 18 17 37-3 26-14 46-30 48-16 1-28-24-28-63z" fill="#33253a" opacity=".34"/>
+              <path d="M198 558c8-6 17-6 25 0M203 576c5-4 10-4 15 0" fill="none" stroke="#bc7940" stroke-width="1.5" opacity=".28"/>
+              <path d="M169 790c-27 1-57 13-88 35 32-10 64-13 98-8M233 790c35 3 66 14 94 34-32-9-61-11-88-6" fill="#17131b" stroke="#17131b" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/>
+            </g>
+
+            <g id="branch-left-main" class="ambient-motion future-hinged-branch branch-left-main">
+              <path d="M190 465c-11-38-29-70-58-92-26-20-61-28-103-20 35-18 74-15 112 8-12-24-30-46-55-66 31 12 56 33 75 62 14 22 25 52 32 89z" fill="#17131b"/>
+              <path d="M142 367c-33-14-69-17-108-7M133 348c-17-24-40-42-68-54M104 350c-20-7-39-7-58 0M109 315 93 278" fill="none" stroke="#17131b" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M68 356 43 338M86 323 62 314M96 287l8-25M45 350l-19 8" fill="none" stroke="#17131b" stroke-width="3" stroke-linecap="round"/>
+              <g class="branch-filigree">
+                <path d="M119 346c-19-18-37-31-57-39M83 322c-14-12-28-18-43-19M73 355c-15 7-27 18-35 31M111 328c7-20 7-37 1-52M54 344c-8-9-18-14-29-15"/>
+                <path d="M61 307c-4-9-2-16 6-22M43 303c-7-5-13-5-19 0M38 386c-8 1-14 6-17 13M112 277c8-8 16-11 25-9"/>
+              </g>
+              <g class="twig-leaves" fill="#201827">
+                <path d="M59 303q8-12 16 0-9 8-16 0zM35 326q7-11 14 0-8 8-14 0zM31 381q8-11 15 1-9 7-15-1zM106 277q8-12 16-1-9 9-16 1z"/>
+              </g>
+            </g>
+
+            <g id="branch-top-main" class="ambient-motion future-hinged-branch branch-top-main">
+              <path d="M191 400c-12-45-13-87-4-126 9-39 29-76 59-111-17 38-26 73-27 105 16-27 38-50 65-69-22 27-38 56-48 88-9 31-15 66-18 106z" fill="#17131b"/>
+              <path d="M206 293c-3-46 10-88 38-126M218 262c20-32 44-55 73-70M215 315c21-34 50-60 86-78" fill="none" stroke="#17131b" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M233 211 229 180M253 221l26-39M268 257l37-9M291 193l19-13" fill="none" stroke="#17131b" stroke-width="3" stroke-linecap="round"/>
+              <g class="branch-filigree">
+                <path d="M221 255c-2-24 4-46 17-65M242 226c5-20 16-36 32-49M267 246c17-17 35-28 56-34M281 208c12-16 25-26 41-30M226 189c-3-12 0-22 8-30"/>
+                <path d="M237 190c9-5 18-5 27 1M275 177c2-11 8-18 17-23M322 212c7-8 14-11 23-9M322 178c8-5 16-5 24 0"/>
+              </g>
+              <g class="twig-leaves" fill="#211927">
+                <path d="M232 184q8-13 17-1-9 10-17 1zM270 176q8-13 16-1-9 9-16 1zM315 210q9-13 17 0-10 9-17 0zM316 176q8-12 16-1-9 9-16 1z"/>
+              </g>
+            </g>
+
+            <g id="branch-right-main" class="ambient-motion future-hinged-branch branch-right-main">
+              <path d="M213 445c18-44 44-76 79-96 27-16 59-22 95-18-34 7-62 21-83 42 26-4 50-2 74 7-31 0-57 8-80 23-22 15-42 34-59 58z" fill="#17131b"/>
+              <path d="M277 370c31-25 66-37 104-36M293 389c29-9 57-8 85 4M256 394c20-34 47-60 82-79" fill="none" stroke="#17131b" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="m325 350 25-24M337 383l29 14M313 332l7-28M368 335l17-10" fill="none" stroke="#17131b" stroke-width="3" stroke-linecap="round"/>
+              <g class="branch-filigree">
+                <path d="M285 370c22-20 46-32 73-37M319 346c17-17 35-27 55-29M310 386c23 2 44 10 63 25M343 378c16-1 29 3 40 12M337 329c10-13 21-21 35-25"/>
+                <path d="M356 333c9 3 16 9 21 18M374 317c7-6 13-7 20-3M373 411c7 1 12 6 15 13M382 389c7-5 14-5 20-1"/>
+              </g>
+              <g class="twig-leaves" fill="#201827">
+                <path d="M349 331q8-13 17-1-9 10-17 1zM369 315q8-12 16-1-9 9-16 1zM369 407q8-12 16 0-9 9-16 0zM376 386q8-12 16-1-9 9-16 1z"/>
+              </g>
+            </g>
+
+            <g id="tree-cut-paper-details" fill="#493650" opacity=".54">
+              <path d="M180 472q8-14 15 1-8 11-15-1z"/>
+              <path d="M159 395q8-12 14 2-9 9-14-2z"/>
+              <path d="M228 385q7-13 14 0-7 11-14 0z"/>
+              <path d="M197 697q6-11 11 1-6 8-11-1z"/>
+            </g>
+
+            <g id="paper-leaf-clusters" fill="#231b2a">
+              <path d="M59 329q13-18 25 1-14 13-25-1zM84 298q11-16 21 1-12 11-21-1zM116 340q13-17 24 2-15 11-24-2z"/>
+              <path d="M279 295q12-17 23 1-13 12-23-1zM321 315q13-18 24 1-14 12-24-1zM347 359q12-17 23 1-13 12-23-1z"/>
+            </g>
+          </g>
+
+          <g
+            id="lantern-trigger"
+            class="lantern-trigger"
+            role="button"
+            tabindex="0"
+            focusable="true"
+            aria-label="Hanging lantern"
+            aria-describedby="lantern-progress-status"
+            aria-disabled="true"
+          >
+            <circle class="ambient-motion lantern-glow" cx="247" cy="409" r="91" fill="url(#lantern-light)" filter="url(#soft-glow)"/>
+            <path d="M247 331c3 9 3 18 0 28" fill="none" stroke="#b9915e" stroke-width="2.5"/>
+            <g filter="url(#paper-shadow-near)">
+              <path d="M232 370q15-21 30 0l-5 4q-10-13-20 0z" fill="#18131c" stroke="#a9783e" stroke-width="1.5"/>
+              <path d="m226 376 41 0-5 60-31 1z" fill="#1b151f" stroke="#c28b46" stroke-width="2.5"/>
+              <path class="ambient-motion lantern-glass" d="m234 385 24 0-3 41-19 1z" fill="url(#lantern-glass)"/>
+              <path d="M246 386v39M233 405h24" stroke="#6c4428" stroke-width="2" opacity=".74"/>
+              <path d="m229 437 34 0-7 9-21 0z" fill="#120e15" stroke="#8d6238" stroke-width="1"/>
+              <path d="M239 374h16M238 432h18" stroke="#e0a858" stroke-width="1" opacity=".62"/>
+            </g>
+            <rect class="lantern-hit-area" x="211" y="345" width="73" height="111" rx="32" fill="transparent"/>
+          </g>
+
+          <g id="ambient-effects-layer" aria-hidden="true">
+            <g class="ambient-motion ambient-leaf leaf-one"><path d="M72 241q9-13 17 0-10 9-17 0z"/></g>
+            <g class="ambient-motion ambient-leaf leaf-two"><path d="M333 286q8-12 16-1-9 9-16 1z"/></g>
+            <g class="ambient-motion ambient-leaf leaf-three"><path d="M111 447q8-12 16 0-9 9-16 0z"/></g>
+            <g class="ambient-motion ambient-leaf leaf-four"><path d="M304 511q9-13 17 0-10 9-17 0z"/></g>
+            <g class="ambient-motion ambient-leaf leaf-five"><path d="M42 550q8-11 15 1-8 8-15-1z"/></g>
+            <g class="ambient-motion ambient-leaf leaf-six"><path d="M358 596q8-12 16 0-9 9-16 0z"/></g>
+          </g>
+          <g id="story-one-layer" class="story-one-layer" aria-hidden="true">
+            <rect class="story-vignette" width="390" height="844" fill="#09070d" opacity="0"/>
+            <circle class="story-lantern-flare" cx="247" cy="409" r="112" fill="url(#lantern-light)" filter="url(#soft-glow)" opacity="0"/>
+            <ellipse class="story-royal-backlight" cx="212" cy="553" rx="48" ry="70" fill="url(#royal-backlight)" filter="url(#soft-glow)" opacity="0"/>
+
+            <g class="story-king-presence" clip-path="url(#tree-hollow-clip)">
+              <path class="king-silhouette-base" d="M188 535q9-23 26-25 18 3 28 25l-2 49q-11 17-27 19-16-2-25-20z" fill="#201627"/>
+              <path class="king-eyes" d="M194 547q7-6 15 0-8 5-15 0zM218 547q7-6 15 0-8 5-15 0z" fill="#e1a24f"/>
+              <g class="king-face-details">
+                <path d="M190 540q11-15 23-16 14 2 26 16-12-6-25-5-13-1-24 5z" fill="#37243a" opacity=".72"/>
+                <path d="M195 541l14 3M219 544l14-3" fill="none" stroke="#6d4b58" stroke-width="1.6" opacity=".72"/>
+                <path d="M213 543c-2 12-1 21 3 27l-7 3" fill="none" stroke="#8d6047" stroke-width="1.4" opacity=".7"/>
+                <path d="M201 584q12-4 24 0M194 591q19 18 39 0" fill="none" stroke="#6d4b58" stroke-width="1.4" opacity=".66"/>
+                <path d="M190 603q23-12 47 0l8 25h-64z" fill="#120e17" stroke="#49334a" stroke-width="1.2"/>
+              </g>
+            </g>
+
+            <g class="story-tree-crown" opacity="0" fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <path class="crown-band" d="M190 520q23 9 47 0" stroke="#201627" stroke-width="7"/>
+              <path d="M191 520q22 7 45 0" stroke="#a27147" stroke-width="1.4" opacity=".68"/>
+              <g class="crown-left-piece">
+                <path d="M199 521c0-11-3-22-8-32" stroke="#17131b" stroke-width="5.5"/>
+                <path d="M192 490l-8-10M192 492l10-1M196 503l-8-1" stroke="#17131b" stroke-width="3"/>
+                <path d="M184 480q7-8 13 1" stroke="#35263a" stroke-width="1.7"/>
+              </g>
+              <g class="crown-center-piece">
+                <path d="M213 523c0-15 0-31 0-47" stroke="#17131b" stroke-width="5.5"/>
+                <path d="M213 478l-7-10M213 478l8-11M213 492l-8-4M213 498l8-4" stroke="#17131b" stroke-width="3"/>
+                <path d="M205 468q8-9 16 0" stroke="#35263a" stroke-width="1.7"/>
+              </g>
+              <g class="crown-right-piece">
+                <path d="M228 521c0-11 3-22 7-32" stroke="#17131b" stroke-width="5.5"/>
+                <path d="M234 490l8-10M234 492l-10-1M231 503l8-1" stroke="#17131b" stroke-width="3"/>
+                <path d="M230 481q7-9 14-1" stroke="#35263a" stroke-width="1.7"/>
+              </g>
+            </g>
+
+            <g class="story-crown-leaves" fill="#e1a24f" opacity="0" filter="url(#soft-glow)">
+              <path d="M187 501q7-11 14 0-8 7-14 0z"/>
+              <path d="M197 486q7-11 14 0-8 7-14 0z"/>
+              <path d="M207 476q7-11 14 0-8 7-14 0z"/>
+              <path d="M218 486q7-11 14 0-8 7-14 0z"/>
+              <path d="M229 501q7-11 14 0-8 7-14 0z"/>
+            </g>
+          </g>
+
+          <g id="foreground-layer" filter="url(#paper-shadow-near)" aria-hidden="true">
+            <path d="M0 724c42-25 88-18 137 22 36 29 73 27 112-5 49-39 96-43 141-14v117H0z" fill="#0d0a10"/>
+            <path d="M0 785c20-31 34-69 41-114l6-51c16 43 18 84 5 124 24-27 45-69 62-125 9 49 2 94-22 136M390 772c-23-29-39-71-47-125l-3-38c-17 45-19 88-5 130-25-23-49-60-71-110 1 52 17 97 49 136" fill="#17121c"/>
+            <g id="foreground-scrollwork" fill="none" stroke="#17121c" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M1 721c28-36 62-43 83-20 15 17 4 35-13 30-13-4-12-20-1-24" stroke-width="7"/>
+              <path d="M389 716c-28-33-60-38-80-14-14 17-2 34 14 28 12-5 10-20-1-23" stroke-width="7"/>
+              <path d="M25 746c18-16 36-22 54-17M365 742c-20-15-38-20-55-14" stroke-width="3"/>
+            </g>
+            <g id="foreground-ferns" fill="#251b2b">
+              <path d="M20 733c8-39 20-70 37-93-7 31-6 61 4 91-10-11-18-24-23-39-2 17-8 31-18 41z"/>
+              <path d="M75 748c6-39 18-71 34-96-5 33-2 63 9 91-11-10-19-23-24-38-2 17-8 31-19 43z"/>
+              <path d="M370 732c-10-38-24-68-42-89 9 31 9 61 1 91 9-12 16-25 20-40 3 17 10 30 21 38z"/>
+              <path d="M316 749c-8-39-21-70-38-93 7 32 6 62-4 91 10-11 18-24 23-39 2 17 8 30 19 41z"/>
+            </g>
+            <g id="foreground-leaf-ornaments" fill="#33253a">
+              <path d="M8 706q17-25 35-5-20 17-35 5zM47 682q15-24 32-6-18 17-32 6zM84 716q19-26 37-4-22 17-37 4z"/>
+              <path d="M282 712q18-26 37-5-21 18-37 5zM321 681q16-24 33-5-19 16-33 5zM350 705q17-25 35-5-20 17-35 5z"/>
+              <circle cx="48" cy="742" r="3"/><circle cx="342" cy="741" r="3"/>
+            </g>
+            <path d="M16 758c25-15 47-16 66-4M308 752c23-14 45-13 66 3" fill="none" stroke="#5a415f" stroke-width="1.5" opacity=".62"/>
+          </g>
+
+          <g id="paper-proscenium" fill="none" stroke="#0e0b12" stroke-linecap="round" aria-hidden="true">
+            <path d="M0 113c16 2 25 12 28 29 2 12-5 20-13 16-7-3-6-12-1-15" stroke-width="8"/>
+            <path d="M390 112c-16 2-24 12-27 29-2 12 5 19 13 15 6-3 5-11 1-14" stroke-width="8"/>
+            <path d="M0 104c11 0 21 5 29 15M390 103c-11 0-20 5-28 15" stroke-width="3"/>
+          </g>
+
+          <rect width="390" height="844" fill="url(#paper-grain)" pointer-events="none"/>
+          <path d="M13 13h364v818H13z" fill="none" stroke="#aa8a71" stroke-opacity=".32" stroke-width="2"/>
+          <path d="M18 18h354M18 826h354" fill="none" stroke="#e4cfaa" stroke-opacity=".1" stroke-width="1"/>
+        </svg>
+
+        <div class="scene-ui-layer">
+          <div class="scene-control-slot">
+            <button
+              class="play-pause-button"
+              id="play-pause-button"
+              type="button"
+              aria-pressed="false"
+              aria-label="Pause ambient scene"
+            >
+              <svg class="control-icon" viewBox="0 0 24 24" aria-hidden="true">
+                <path class="pause-icon" d="M7 5h3v14H7zM14 5h3v14h-3z"/>
+                <path class="play-icon" d="m8 5 11 7-11 7z"/>
+              </svg>
+            </button>
+          </div>
+          <p class="scene-hint" id="scene-hint" role="status" aria-live="polite" aria-atomic="true"></p>
+          <div class="development-story-slot">
+            <button class="test-story-button" id="test-story-button" type="button">
+              Test Story 1 <span>Development only</span>
+            </button>
+          </div>
+        </div>
+
+        <p class="motion-status" id="motion-status"></p>
+        <p class="visually-hidden" id="playback-status" aria-live="polite"></p>
+        <p class="visually-hidden" id="lantern-progress-status" aria-live="polite">The King silhouette, eyes, and crown are hidden. No awakening steps are complete.</p>
+        <audio id="ambient-audio" preload="auto" loop aria-hidden="true">
+          <source src="assets/audio/ambient-midnight.wav" type="audio/wav">
+        </audio>
+        <audio id="story-one-audio" preload="auto" aria-hidden="true">
+          <source src="assets/audio/story-one-crown.wav" type="audio/wav">
+        </audio>
+        <audio id="lantern-feedback-audio" preload="auto" aria-hidden="true"></audio>
+      </section>
+
+      <section class="story-cover" id="start-screen" aria-labelledby="cover-title">
+        <div class="book-edge" aria-hidden="true"></div>
+        <div class="cover-frame">
+          <p class="eyebrow">Once Upon a Midnight</p>
+          <span class="cover-moon" aria-hidden="true">☾</span>
+          <h2 id="cover-title">The King<br>of Shadows</h2>
+          <div class="cover-rule" aria-hidden="true"><span>◆</span></div>
+          <p class="invitation">Open the book. Wake the lantern. See what the forest remembers.</p>
+          <button class="enter-button" id="enter-button" type="button">Enter the forest</button>
+          <p class="preference-note" id="preference-note"></p>
+        </div>
+      </section>
+    </main>
+
+    <noscript>This experience requires JavaScript to open the storybook.</noscript>
+    <script src="app.js"></script>
+  </body>
+</html>
