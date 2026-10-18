@@ -349,7 +349,10 @@ Developer observations: none recorded. Checkpoints 4 and 5 remain unchecked unti
 - The workflow validates and stages exactly eight public runtime files: `index.html`, `styles.css`, `app.js`, the ambient loop, the Story 1 mix, and the three lantern feedback cues.
 - Project documents, transcripts, original source audio, reference material, and audio-building scripts remain in the source repository but are excluded from the published artifact.
 - Pre-deployment Agent checks: `node --check` passed for the application and all three audio-building scripts; Git whitespace validation passed; all eight required runtime files exist; and a locally staged artifact contained exactly the expected eight files.
-- Deployment and published-URL verification are pending the first push and GitHub Pages workflow run. Physical-smartphone verification on the deployed HTTPS experience remains pending, so Checkpoints 4 and 5 remain open.
+- Source push result: commit `1b3337f` was pushed successfully to `origin/main` with the complete project source and deployment workflow.
+- First GitHub Actions result: run `39089211258` completed with failure. Checkout and public-file staging succeeded, but `actions/configure-pages@v5` failed because GitHub Pages is not yet enabled and configured to use GitHub Actions for this repository. Artifact upload and deployment were therefore skipped; no successful public URL is claimed.
+- Required manual repository setting: an owner must open **Settings → Pages → Build and deployment** and select **GitHub Actions** as the source, then rerun the workflow. The separate local GitHub CLI login is invalid, so the Agent cannot change this owner setting through the API.
+- Published-HTTPS asset checks and physical-smartphone verification remain pending until that rerun succeeds. Checkpoints 4 and 5 remain open.
 
 ## Saving transcripts
 
