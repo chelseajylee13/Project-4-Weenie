@@ -108,6 +108,15 @@ button {
   transform-origin: center;
 }
 
+.lantern-glow {
+  opacity: 0;
+}
+
+.lantern-glass {
+  opacity: .24;
+  filter: grayscale(1) brightness(.26);
+}
+
 .ambient-leaf {
   fill: #b07b47;
   opacity: 0;
@@ -156,14 +165,6 @@ button {
 
 .crown-right-piece {
   transform-origin: 228px 521px;
-}
-
-body[data-entered="true"] .lantern-glow {
-  animation: lantern-flicker 4.2s ease-in-out infinite;
-}
-
-body[data-entered="true"] .lantern-glass {
-  animation: lantern-glass-flicker 4.2s ease-in-out infinite;
 }
 
 body[data-entered="true"] .branch-left-main {
@@ -223,6 +224,69 @@ body[data-active-state="story"] .ambient-motion {
   stroke-dasharray: 6 4;
 }
 
+.torch-trigger {
+  transform-box: view-box;
+  transform-origin: 0 0;
+  pointer-events: none;
+  outline: none;
+  will-change: transform, opacity;
+}
+
+.torch-art,
+.torch-flame-outer,
+.torch-flame-inner {
+  transform-box: fill-box;
+  transform-origin: center;
+  pointer-events: none;
+}
+
+.torch-hit-area {
+  pointer-events: none;
+  stroke: transparent;
+  stroke-width: 2;
+  vector-effect: non-scaling-stroke;
+  touch-action: none;
+}
+
+.torch-trigger[data-enabled="true"] .torch-hit-area {
+  pointer-events: all;
+  cursor: grab;
+}
+
+.torch-trigger[data-dragging="true"] .torch-hit-area {
+  cursor: grabbing;
+}
+
+.torch-trigger[data-enabled="true"]:hover .torch-art,
+.torch-trigger[data-dragging="true"] .torch-art,
+.torch-trigger[data-selected="true"] .torch-art {
+  filter: drop-shadow(0 0 5px #e2a04eb8);
+}
+
+.torch-trigger[data-selected="true"] .torch-hit-area,
+.torch-trigger:focus-visible .torch-hit-area {
+  stroke: #fff2c9;
+  stroke-dasharray: 6 4;
+}
+
+body[data-entered="true"] .torch-flame-outer {
+  animation: torch-flame-outer 1.15s ease-in-out infinite alternate;
+}
+
+body[data-entered="true"] .torch-flame-inner {
+  animation: torch-flame-inner .82s ease-in-out -.2s infinite alternate;
+}
+
+body[data-torch-near="true"] .lantern-hit-area {
+  stroke: #e7d6b4b8;
+  stroke-dasharray: 5 4;
+}
+
+body[data-active-state="story"] .torch-trigger {
+  opacity: 0;
+  pointer-events: none;
+}
+
 .king-silhouette-base,
 .king-eyes,
 .king-face-details {
@@ -231,17 +295,6 @@ body[data-active-state="story"] .ambient-motion {
   transform-origin: 212px 588px;
   pointer-events: none;
   will-change: opacity, transform;
-}
-
-body[data-lantern-progress="1"] .king-silhouette-base,
-body[data-lantern-progress="2"] .king-silhouette-base,
-body[data-lantern-progress="3"] .king-silhouette-base {
-  opacity: .68;
-}
-
-body[data-lantern-progress="2"] .king-eyes,
-body[data-lantern-progress="3"] .king-eyes {
-  opacity: .86;
 }
 
 .scene-ui-layer {
@@ -614,26 +667,14 @@ noscript {
   }
 }
 
-@keyframes lantern-flicker {
-  0%, 100% { opacity: .76; transform: scale(.975); }
-  14% { opacity: .96; transform: scale(1.018); }
-  22% { opacity: .72; transform: scale(.965); }
-  29% { opacity: 1; transform: scale(1.04); }
-  52% { opacity: .88; transform: scale(.995); }
-  60% { opacity: .7; transform: scale(.97); }
-  67% { opacity: .97; transform: scale(1.025); }
-  84% { opacity: .9; transform: scale(1.005); }
+@keyframes torch-flame-outer {
+  from { opacity: .78; transform: scale(.92) rotate(-2deg); }
+  to { opacity: 1; transform: scale(1.08) rotate(2deg); }
 }
 
-@keyframes lantern-glass-flicker {
-  0%, 100% { opacity: .78; }
-  14% { opacity: .98; }
-  22% { opacity: .74; }
-  29% { opacity: 1; }
-  52% { opacity: .88; }
-  60% { opacity: .72; }
-  67% { opacity: .98; }
-  84% { opacity: .9; }
+@keyframes torch-flame-inner {
+  from { opacity: .82; transform: scale(.9); }
+  to { opacity: 1; transform: scale(1.06); }
 }
 
 @keyframes sway-left {
@@ -673,14 +714,19 @@ html[data-reduced-motion="true"] body[data-entered="true"] .future-hinged-branch
   animation: none;
 }
 
-html[data-reduced-motion="true"] body[data-entered="true"] .lantern-glow,
-html[data-reduced-motion="true"] body[data-entered="true"] .lantern-glass {
-  animation: lantern-breathe-reduced 8s ease-in-out infinite alternate;
+html[data-reduced-motion="true"] body[data-entered="true"] .ambient-leaf {
+  animation: leaf-rest-reduced 12s ease-in-out infinite;
   transform: none;
 }
 
-html[data-reduced-motion="true"] body[data-entered="true"] .ambient-leaf {
-  animation: leaf-rest-reduced 12s ease-in-out infinite;
+html[data-reduced-motion="true"] body[data-entered="true"] .torch-flame-outer,
+html[data-reduced-motion="true"] body[data-entered="true"] .torch-flame-inner {
+  animation: lantern-breathe-reduced 5s ease-in-out infinite alternate;
+  transform: none;
+}
+
+html[data-reduced-motion="true"] .torch-trigger[data-enabled="true"]:hover .torch-art,
+html[data-reduced-motion="true"] .torch-trigger[data-selected="true"] .torch-art {
   transform: none;
 }
 

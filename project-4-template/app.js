@@ -9,12 +9,17 @@ const motionStatus = document.querySelector("#motion-status");
 const playPauseButton = document.querySelector("#play-pause-button");
 const testStoryButton = document.querySelector("#test-story-button");
 const playbackStatus = document.querySelector("#playback-status");
-const lanternProgressStatus = document.querySelector("#lantern-progress-status");
+const torchInteractionStatus = document.querySelector("#torch-interaction-status");
 const sceneHint = document.querySelector("#scene-hint");
+const sceneSvg = document.querySelector(".scene-art");
 const ambientAudio = document.querySelector("#ambient-audio");
 const storyAudio = document.querySelector("#story-one-audio");
 const lanternFeedbackAudio = document.querySelector("#lantern-feedback-audio");
+const lanternIgnitionAudio = document.querySelector("#lantern-ignition-audio");
 const lanternTrigger = document.querySelector("#lantern-trigger");
+const lanternGlow = document.querySelector(".lantern-glow");
+const lanternGlass = document.querySelector(".lantern-glass");
+const torchTrigger = document.querySelector("#torch-trigger");
 const kingSilhouetteBase = document.querySelector(".king-silhouette-base");
 const kingEyes = document.querySelector(".king-eyes");
 const kingFaceDetails = document.querySelector(".king-face-details");
@@ -35,16 +40,20 @@ const storyLeaves = document.querySelector(".story-crown-leaves");
 const STORY_DURATION = 8000;
 const FULL_AMBIENT_VOLUME = 1;
 const DUCKED_AMBIENT_VOLUME = 0.58;
+const IGNITION_VOLUME = 0.42;
 const HINTS = [
-  { at: 12000, text: "Something in the branches is still awake..." },
-  { at: 24000, text: "A warm light keeps watch over the hollow." },
-  { at: 36000, text: "Perhaps the lantern has more than one secret to tell." },
+  { at: 12000, text: "A little flame waits among the roots..." },
+  { at: 24000, text: "Perhaps the flame belongs somewhere else." },
+  { at: 36000, text: "The lantern above is waiting to be lit." },
 ];
 const LANTERN_FEEDBACK_SOURCES = [
   "assets/audio/lantern-step-1.wav",
   "assets/audio/lantern-step-2.wav",
   "assets/audio/lantern-step-3.wav",
 ];
+const TORCH_FLAME_ORIGIN = { x: 97.4, y: 610.5 };
+const LANTERN_DROP_CENTER = { x: 247, y: 407 };
+const LANTERN_DROP_RADIUS = { x: 76, y: 88 };
 
 let hasEntered = false;
 let isPaused = true;
@@ -52,18 +61,21 @@ let appState = "intro";
 let resumeState = "intro";
 let audioUnavailable = false;
 let storyAudioUnavailable = false;
+let ignitionAudioUnavailable = false;
+let ignitionAudioActive = false;
 let storyAnimations = [];
 let pausedAmbientAnimations = [];
 let storyMasterAnimation = null;
 let storyRunId = 0;
 let audioMixFrame = null;
-let lanternProgress = 0;
-let lanternFeedbackBusy = false;
-let lanternStoryPending = false;
-let lanternFeedbackAnimation = null;
 let lanternFeedbackUnavailable = false;
 let storyStartedFrom = "development";
-let lastLanternInputWasKeyboard = false;
+let torchMode = "idle";
+let torchOffset = { x: 0, y: 0 };
+let torchDrag = null;
+let torchReturnAnimation = null;
+let lastTorchInputWasKeyboard = false;
+let storyStartPending = false;
 let hintElapsed = 0;
 let hintStartedAt = null;
 let hintTimer = null;
@@ -82,25 +94,39 @@ function updateStateAttributes() {
   document.body.dataset.state = appState;
   document.body.dataset.activeState = activeState();
   document.body.dataset.paused = String(isPaused);
+  document.body.dataset.torchNear = String(torchMode === "near-lantern");
 
   const storyIsActive = activeState() === "story";
-  const lanternEnabled = hasEntered
+  const torchEnabled = hasEntered
     && appState === "exploring"
     && !isPaused
-    && !lanternFeedbackBusy
-    && !lanternStoryPending;
-  testStoryButton.disabled = isPaused || appState !== "exploring" || lanternFeedbackBusy || lanternStoryPending;
+    && !storyStartPending
+    && torchMode !== "returning";
+  const torchSelected = torchMode === "selected";
+  const torchDragging = torchMode === "dragging" || torchMode === "near-lantern";
+  const lanternEnabled = torchEnabled && torchSelected;
+  testStoryButton.disabled = isPaused || appState !== "exploring" || storyStartPending || torchDragging;
+  torchTrigger.dataset.enabled = String(torchEnabled);
+  torchTrigger.dataset.selected = String(torchSelected);
+  torchTrigger.dataset.dragging = String(torchDragging);
+  torchTrigger.setAttribute("aria-disabled", String(!torchEnabled));
+  torchTrigger.setAttribute("aria-pressed", String(torchSelected));
+  torchTrigger.setAttribute("tabindex", torchEnabled ? "0" : "-1");
+  torchTrigger.setAttribute(
+    "aria-label",
+    torchSelected
+      ? "Burning torch selected. Activate again or press Escape to return it. Activate the hanging lantern to light it."
+      : "Burning torch. Select it to carry its flame to the hanging lantern.",
+  );
   lanternTrigger.dataset.enabled = String(lanternEnabled);
   lanternTrigger.setAttribute("aria-disabled", String(!lanternEnabled));
   lanternTrigger.setAttribute("tabindex", lanternEnabled ? "0" : "-1");
-  const awakeningLabels = [
-    "The King silhouette, eyes, and crown are hidden. Activate to investigate.",
-    "The King's shadowy silhouette is visible. One of three awakening steps is complete.",
-    "The same silhouette remains and its amber eyes are glowing. Two of three awakening steps are complete.",
-    "The King is awakening. Three of three steps are complete.",
-  ];
-  lanternTrigger.setAttribute("aria-label", `Hanging lantern. ${awakeningLabels[lanternProgress]}`);
-  document.body.dataset.lanternProgress = String(lanternProgress);
+  lanternTrigger.setAttribute(
+    "aria-label",
+    torchSelected
+      ? "Hanging lantern. Activate to light it with the selected torch and awaken the King."
+      : "Hanging lantern. Select the burning torch first.",
+  );
   playPauseButton.setAttribute("aria-pressed", String(isPaused));
   playPauseButton.setAttribute(
     "aria-label",
@@ -164,8 +190,10 @@ function startHintClock() {
     !hasEntered
     || isPaused
     || appState !== "exploring"
-    || lanternFeedbackBusy
-    || lanternStoryPending
+    || storyStartPending
+    || torchMode === "dragging"
+    || torchMode === "near-lantern"
+    || torchMode === "returning"
     || nextHintIndex >= HINTS.length
     || hintTimer !== null
   ) return;
@@ -177,7 +205,7 @@ function startHintClock() {
     hintStartedAt = null;
     hintTimer = null;
 
-    if (isPaused || appState !== "exploring" || lanternStoryPending) return;
+    if (isPaused || appState !== "exploring" || storyStartPending) return;
     sceneHint.textContent = HINTS[nextHintIndex].text;
     sceneHint.dataset.visible = "true";
     nextHintIndex += 1;
@@ -193,148 +221,250 @@ function resetHintClock() {
   startHintClock();
 }
 
-function syncLanternFeedbackAudio() {
-  if (!lanternFeedbackBusy || lanternFeedbackUnavailable || lanternFeedbackAudio.ended) return;
+function syncInteractionFeedbackAudio() {
+  if (!lanternFeedbackAudio.getAttribute("src") || lanternFeedbackUnavailable || lanternFeedbackAudio.ended) return;
   if (isPaused) {
     lanternFeedbackAudio.pause();
     return;
   }
   playAudio(lanternFeedbackAudio, () => {
     lanternFeedbackUnavailable = true;
-    reportAudioFailure("The lantern still responds visually, but its feedback sound is unavailable.");
+    reportAudioFailure("The torch and lantern still respond visually, but their feedback sound is unavailable.");
   });
 }
 
-function setLanternProgress(nextProgress, animate = true) {
-  const previousProgress = lanternProgress;
-  lanternProgress = nextProgress;
-  document.body.dataset.lanternProgress = String(lanternProgress);
-  if (!animate || nextProgress === 0) return;
-
-  const reduced = reducedMotionQuery.matches;
-  const duration = reduced ? 360 : 520;
-  const silhouetteLevels = [0, 0.68, 0.68, 0.68];
-  kingSilhouetteBase.animate(
-    nextProgress === 1
-      ? [
-          { opacity: 0 },
-          { opacity: 0.76, offset: 0.72 },
-          { opacity: silhouetteLevels[nextProgress] },
-        ]
-      : [
-          { opacity: silhouetteLevels[previousProgress] },
-          { opacity: 0.76, offset: 0.48 },
-          { opacity: silhouetteLevels[nextProgress] },
-        ],
-    { duration, easing: "ease-in-out" },
-  );
-
-  if (nextProgress >= 2) {
-    kingEyes.animate(
-      [
-        { opacity: previousProgress >= 2 ? 0.86 : 0 },
-        { opacity: nextProgress === 3 ? 1 : 0.78, offset: 0.5 },
-        { opacity: 0.86 },
-      ],
-      { duration, easing: "ease-in-out" },
-    );
-  }
-}
-
-function playLanternVisualFeedback(step) {
-  const reduced = reducedMotionQuery.matches;
-  const standardFrames = [
-    [
-      { transform: "scale(1)" },
-      { transform: "scale(1.025)", offset: 0.46 },
-      { transform: "scale(1)" },
-    ],
-    [
-      { transform: "rotate(0deg)" },
-      { transform: "rotate(-2deg)", offset: 0.32 },
-      { transform: "rotate(1.2deg)", offset: 0.68 },
-      { transform: "rotate(0deg)" },
-    ],
-    [
-      { transform: "translateY(0) scale(1)" },
-      { transform: "translateY(-1.5px) scale(1.04)", offset: 0.48 },
-      { transform: "translateY(0) scale(1)" },
-    ],
-  ];
-  const reducedFrames = [
-    [{ opacity: 1 }, { opacity: 0.78, offset: 0.5 }, { opacity: 1 }],
-    [{ opacity: 1 }, { opacity: 0.68, offset: 0.45 }, { opacity: 1 }],
-    [{ opacity: 1 }, { opacity: 0.58, offset: 0.45 }, { opacity: 1 }],
-  ];
-  return lanternTrigger.animate(
-    reduced ? reducedFrames[step - 1] : standardFrames[step - 1],
-    { duration: reduced ? 360 : 520, easing: "ease-in-out" },
-  );
-}
-
-function playLanternFeedbackAudio(step) {
+function playInteractionFeedbackAudio(step) {
   lanternFeedbackAudio.pause();
   lanternFeedbackAudio.src = LANTERN_FEEDBACK_SOURCES[step - 1];
   lanternFeedbackAudio.currentTime = 0;
   lanternFeedbackUnavailable = false;
-  syncLanternFeedbackAudio();
+  syncInteractionFeedbackAudio();
 }
 
-function finishLanternFeedback(step) {
-  lanternFeedbackBusy = false;
-  lanternFeedbackAnimation = null;
-
-  if (step === 3 && lanternStoryPending && activeState() === "exploring") {
-    lanternStoryPending = false;
-    updateStateAttributes();
-    startStory("lantern");
+function syncIgnitionAudio() {
+  if (!ignitionAudioActive || ignitionAudioUnavailable || lanternIgnitionAudio.ended) return;
+  if (isPaused || activeState() !== "story") {
+    lanternIgnitionAudio.pause();
     return;
   }
+  playAudio(lanternIgnitionAudio, () => {
+    ignitionAudioUnavailable = true;
+    reportAudioFailure("The lantern still lights visually, but its ignition sound is unavailable.");
+  });
+}
 
+function playIgnitionAudio() {
+  lanternIgnitionAudio.pause();
+  lanternIgnitionAudio.currentTime = 0;
+  lanternIgnitionAudio.volume = IGNITION_VOLUME;
+  ignitionAudioUnavailable = false;
+  ignitionAudioActive = true;
+}
+
+function clientToScenePoint(event) {
+  const matrix = sceneSvg.getScreenCTM();
+  if (!matrix) return null;
+  const point = sceneSvg.createSVGPoint();
+  point.x = event.clientX;
+  point.y = event.clientY;
+  return point.matrixTransform(matrix.inverse());
+}
+
+function setTorchOffset(x, y) {
+  torchOffset = { x, y };
+  torchTrigger.style.transform = `translate(${x}px, ${y}px)`;
+}
+
+function flameIsNearLantern(offset = torchOffset) {
+  const xDistance = (TORCH_FLAME_ORIGIN.x + offset.x - LANTERN_DROP_CENTER.x) / LANTERN_DROP_RADIUS.x;
+  const yDistance = (TORCH_FLAME_ORIGIN.y + offset.y - LANTERN_DROP_CENTER.y) / LANTERN_DROP_RADIUS.y;
+  return xDistance * xDistance + yDistance * yDistance <= 1;
+}
+
+function cancelTorchReturn() {
+  if (!torchReturnAnimation) return;
+  const animation = torchReturnAnimation;
+  torchReturnAnimation = null;
+  animation.cancel();
+}
+
+function finishTorchReturn(animation) {
+  if (torchReturnAnimation !== animation) return;
+  torchReturnAnimation = null;
+  animation.cancel();
+  setTorchOffset(0, 0);
+  torchMode = "idle";
   updateStateAttributes();
   startHintClock();
 }
 
-function activateLantern(inputWasKeyboard) {
+function returnTorchToOrigin(announce = true) {
+  const from = { ...torchOffset };
+  torchDrag = null;
+  if (announce) {
+    torchInteractionStatus.textContent = "The flame did not reach the lantern. The torch returned to the roots.";
+    playInteractionFeedbackAudio(2);
+  }
+
+  if (reducedMotionQuery.matches || Math.hypot(from.x, from.y) < 2) {
+    setTorchOffset(0, 0);
+    torchMode = "idle";
+    updateStateAttributes();
+    startHintClock();
+    return;
+  }
+
+  torchMode = "returning";
+  updateStateAttributes();
+  const animation = torchTrigger.animate(
+    [
+      { transform: `translate(${from.x}px, ${from.y}px)` },
+      { transform: "translate(0px, 0px)" },
+    ],
+    { duration: 320, easing: "cubic-bezier(.3,.7,.35,1)", fill: "both" },
+  );
+  torchReturnAnimation = animation;
+  animation.finished.then(() => finishTorchReturn(animation)).catch(() => {});
+}
+
+function releaseTorchPointer() {
+  if (!torchDrag) return;
+  const pointerId = torchDrag.pointerId;
+  torchDrag = null;
+  if (torchTrigger.hasPointerCapture?.(pointerId)) torchTrigger.releasePointerCapture(pointerId);
+}
+
+function selectTorch(inputWasKeyboard) {
+  if (!hasEntered || isPaused || appState !== "exploring" || storyStartPending) return;
+  cancelTorchReturn();
+  setTorchOffset(0, 0);
+  torchMode = "selected";
+  lastTorchInputWasKeyboard = inputWasKeyboard;
+  resetHintClock();
+  torchInteractionStatus.textContent = "Torch selected. Carry its flame to the hanging lantern, or activate the lantern now.";
+  playInteractionFeedbackAudio(1);
+  updateStateAttributes();
+  if (inputWasKeyboard) lanternTrigger.focus({ preventScroll: true });
+}
+
+function cancelTorchSelection(returnFocus = false) {
+  if (torchMode !== "selected") return;
+  torchMode = "idle";
+  torchInteractionStatus.textContent = "Torch selection cancelled. It rests among the roots again.";
+  playInteractionFeedbackAudio(2);
+  updateStateAttributes();
+  startHintClock();
+  if (returnFocus) torchTrigger.focus({ preventScroll: true });
+}
+
+function igniteLantern(inputWasKeyboard) {
   if (
     !hasEntered
     || isPaused
     || appState !== "exploring"
-    || lanternFeedbackBusy
-    || lanternStoryPending
-    || lanternProgress >= 3
+    || storyStartPending
+    || !["selected", "dragging", "near-lantern"].includes(torchMode)
   ) return;
 
-  lastLanternInputWasKeyboard = inputWasKeyboard;
-  const step = lanternProgress + 1;
-  lanternFeedbackBusy = true;
-  lanternStoryPending = step === 3;
-  resetHintClock();
-  setLanternProgress(step);
+  releaseTorchPointer();
+  storyStartPending = true;
+  torchMode = "igniting";
+  lastTorchInputWasKeyboard = inputWasKeyboard;
+  pauseHintClock();
+  hideHint();
+  torchInteractionStatus.textContent = "The torch lights the hanging lantern. The warm glow awakens the King.";
   updateStateAttributes();
-
-  const accessibleResponses = [
-    "First lantern response: the shadow appears. The King's dark head silhouette is now visible; its eyes and crown remain hidden.",
-    "Second lantern response: the eyes awaken. Amber eyes now glow within the same silhouette; the crown remains hidden.",
-    "Third lantern response: the King fully awakens. The existing silhouette and eyes continue into Story 1.",
-  ];
-  lanternProgressStatus.textContent = accessibleResponses[step - 1];
-
-  lanternFeedbackAnimation = playLanternVisualFeedback(step);
-  playLanternFeedbackAudio(step);
-  lanternFeedbackAnimation.finished
-    .then(() => finishLanternFeedback(step))
-    .catch(() => finishLanternFeedback(step));
+  playIgnitionAudio();
+  startStory("torch");
+  syncIgnitionAudio();
+  storyStartPending = false;
 }
 
-function resetLanternInteraction() {
+function beginTorchDrag(event) {
+  if (!hasEntered || isPaused || appState !== "exploring" || storyStartPending) return;
+  if (torchMode === "selected") {
+    event.preventDefault();
+    cancelTorchSelection(false);
+    return;
+  }
+  if (torchMode !== "idle") return;
+
+  const point = clientToScenePoint(event);
+  if (!point) return;
+  event.preventDefault();
+  cancelTorchReturn();
+  torchDrag = {
+    pointerId: event.pointerId,
+    start: point,
+    origin: { ...torchOffset },
+    moved: false,
+  };
+  torchMode = "dragging";
+  lastTorchInputWasKeyboard = false;
+  torchTrigger.setPointerCapture(event.pointerId);
+  resetHintClock();
+  torchInteractionStatus.textContent = "Torch picked up. Move its flame toward the hanging lantern.";
+  playInteractionFeedbackAudio(1);
+  updateStateAttributes();
+}
+
+function moveTorch(event) {
+  if (!torchDrag || event.pointerId !== torchDrag.pointerId) return;
+  const point = clientToScenePoint(event);
+  if (!point) return;
+  event.preventDefault();
+  const x = torchDrag.origin.x + point.x - torchDrag.start.x;
+  const y = torchDrag.origin.y + point.y - torchDrag.start.y;
+  const clampedX = Math.max(-42, Math.min(278, x));
+  const clampedY = Math.max(-590, Math.min(96, y));
+  if (Math.hypot(clampedX - torchDrag.origin.x, clampedY - torchDrag.origin.y) > 5) {
+    torchDrag.moved = true;
+  }
+  if (!torchDrag.moved) return;
+  setTorchOffset(clampedX, clampedY);
+  const nearLantern = flameIsNearLantern();
+  if (nearLantern && torchMode !== "near-lantern") {
+    torchInteractionStatus.textContent = "The flame is close enough. Release it to light the lantern.";
+  }
+  torchMode = nearLantern ? "near-lantern" : "dragging";
+  updateStateAttributes();
+}
+
+function endTorchDrag(event) {
+  if (!torchDrag || event.pointerId !== torchDrag.pointerId) return;
+  event.preventDefault();
+  const moved = torchDrag.moved;
+  const successfulDrop = moved && flameIsNearLantern();
+  releaseTorchPointer();
+  if (successfulDrop) {
+    igniteLantern(false);
+  } else if (moved) {
+    returnTorchToOrigin();
+  } else {
+    selectTorch(false);
+  }
+}
+
+function cancelPhysicalDrag(announce = true) {
+  if (!torchDrag) return;
+  releaseTorchPointer();
+  if (announce) {
+    torchInteractionStatus.textContent = "Torch movement cancelled. It returned to the roots.";
+  }
+  setTorchOffset(0, 0);
+  torchMode = "idle";
+  updateStateAttributes();
+}
+
+function resetTorchInteraction() {
+  releaseTorchPointer();
+  cancelTorchReturn();
   lanternFeedbackAudio.pause();
   if (Number.isFinite(lanternFeedbackAudio.duration)) lanternFeedbackAudio.currentTime = 0;
-  lanternFeedbackBusy = false;
-  lanternStoryPending = false;
-  lanternFeedbackAnimation = null;
-  setLanternProgress(0, false);
-  lanternProgressStatus.textContent = "The King silhouette, eyes, and crown are hidden. No awakening steps are complete.";
+  storyStartPending = false;
+  setTorchOffset(0, 0);
+  torchMode = "idle";
+  torchInteractionStatus.textContent = "The torch rests among the roots. Select it, then light the hanging lantern.";
   resetHintClock();
   updateStateAttributes();
 }
@@ -410,6 +540,7 @@ function setPaused(nextPaused, announce = true) {
   if (nextPaused === isPaused && hasEntered) return;
 
   if (nextPaused) {
+    if (torchMode === "dragging" || torchMode === "near-lantern") cancelPhysicalDrag(false);
     resumeState = activeState();
     isPaused = true;
     setAppState("paused");
@@ -417,6 +548,7 @@ function setPaused(nextPaused, announce = true) {
     ambientAudio.pause();
     storyAudio.pause();
     lanternFeedbackAudio.pause();
+    lanternIgnitionAudio.pause();
     pauseHintClock();
     if (audioMixFrame !== null) cancelAnimationFrame(audioMixFrame);
     audioMixFrame = null;
@@ -432,9 +564,10 @@ function setPaused(nextPaused, announce = true) {
     syncAmbientAudio();
     if (appState === "story") {
       syncStoryAudio();
+      syncIgnitionAudio();
       startStoryAudioMix();
     } else if (appState === "exploring") {
-      syncLanternFeedbackAudio();
+      syncInteractionFeedbackAudio();
       startHintClock();
     }
   }
@@ -464,6 +597,25 @@ function makeStoryAnimation(element, keyframes, options = {}) {
 
 function buildStoryAnimations(prefersReducedMotion) {
   storyAnimations = [];
+  const ignitionScale = prefersReducedMotion ? 1 : 1.16;
+
+  makeStoryAnimation(lanternGlow, [
+    { opacity: 0, transform: prefersReducedMotion ? "scale(1)" : "scale(.82)", offset: 0 },
+    { opacity: 1, transform: `scale(${ignitionScale})`, offset: 0.1, easing: "ease-out" },
+    { opacity: 0.76, transform: "scale(1)", offset: 0.24 },
+    { opacity: 0.7, transform: "scale(1)", offset: 0.86 },
+    { opacity: 0, transform: "scale(.92)", offset: 0.98, easing: "ease-in" },
+    { opacity: 0, transform: "scale(.92)", offset: 1 },
+  ]);
+
+  makeStoryAnimation(lanternGlass, [
+    { opacity: 0.24, filter: "grayscale(1) brightness(.26)", offset: 0 },
+    { opacity: 1, filter: "saturate(1) brightness(1.16)", offset: 0.1, easing: "ease-out" },
+    { opacity: 0.82, filter: "saturate(.9) brightness(1)", offset: 0.24 },
+    { opacity: 0.76, filter: "saturate(.85) brightness(.94)", offset: 0.86 },
+    { opacity: 0.24, filter: "grayscale(1) brightness(.26)", offset: 0.98, easing: "ease-in" },
+    { opacity: 0.24, filter: "grayscale(1) brightness(.26)", offset: 1 },
+  ]);
 
   makeStoryAnimation(storyVignette, [
     { opacity: 0, offset: 0 },
@@ -534,10 +686,9 @@ function buildStoryAnimations(prefersReducedMotion) {
 
   const revealDistance = prefersReducedMotion ? 2 : 7;
   const nodAngle = prefersReducedMotion ? 1.25 : 3.5;
-  const continuesAwakening = storyStartedFrom === "lantern" && lanternProgress === 3;
   makeStoryAnimation(storyKing, [
-    { transform: continuesAwakening ? "translateY(0) rotate(0deg)" : `translateY(${revealDistance}px) rotate(0deg)`, offset: 0 },
-    { transform: continuesAwakening ? "translateY(0) rotate(0deg)" : `translateY(${revealDistance}px) rotate(0deg)`, offset: 0.24 },
+    { transform: `translateY(${revealDistance}px) rotate(0deg)`, offset: 0 },
+    { transform: `translateY(${revealDistance}px) rotate(0deg)`, offset: 0.24 },
     { transform: "translateY(0) rotate(0deg)", offset: 0.43, easing: "ease-out" },
     { transform: "translateY(0) rotate(0deg)", offset: 0.69 },
     { transform: `translateY(1px) rotate(${nodAngle}deg)`, offset: 0.75, easing: "ease-in-out" },
@@ -548,8 +699,8 @@ function buildStoryAnimations(prefersReducedMotion) {
   ]);
 
   makeStoryAnimation(kingSilhouetteBase, [
-    { opacity: continuesAwakening ? 0.68 : 0, offset: 0 },
-    { opacity: continuesAwakening ? 0.68 : 0, offset: 0.24 },
+    { opacity: 0, offset: 0 },
+    { opacity: 0, offset: 0.24 },
     { opacity: 0.88, offset: 0.43, easing: "ease-out" },
     { opacity: 0.88, offset: 0.81 },
     { opacity: 0, offset: 0.97, easing: "ease-in" },
@@ -557,9 +708,9 @@ function buildStoryAnimations(prefersReducedMotion) {
   ]);
 
   makeStoryAnimation(kingEyes, [
-    { opacity: continuesAwakening ? 0.86 : 0, offset: 0 },
-    { opacity: continuesAwakening ? 1 : 0, offset: 0.08, easing: "ease-out" },
-    { opacity: continuesAwakening ? 0.86 : 0, offset: 0.24 },
+    { opacity: 0, offset: 0 },
+    { opacity: 0, offset: 0.08, easing: "ease-out" },
+    { opacity: 0, offset: 0.24 },
     { opacity: 0.86, offset: 0.43, easing: "ease-out" },
     { opacity: 0.86, offset: 0.81 },
     { opacity: 0, offset: 0.97, easing: "ease-in" },
@@ -619,6 +770,9 @@ function finishStory(runId) {
   stopStoryAudioMix();
   storyAudio.pause();
   storyAudio.currentTime = 0;
+  lanternIgnitionAudio.pause();
+  lanternIgnitionAudio.currentTime = 0;
+  ignitionAudioActive = false;
   for (const animation of storyAnimations) animation.cancel();
   storyAnimations = [];
   storyMasterAnimation = null;
@@ -627,10 +781,10 @@ function finishStory(runId) {
 
   for (const animation of pausedAmbientAnimations) animation.play();
   pausedAmbientAnimations = [];
-  resetLanternInteraction();
+  resetTorchInteraction();
   playbackStatus.textContent = "Story 1 complete. The forest is ready to replay.";
-  if (storyStartedFrom === "lantern" && lastLanternInputWasKeyboard) {
-    lanternTrigger.focus({ preventScroll: true });
+  if (storyStartedFrom === "torch" && lastTorchInputWasKeyboard) {
+    torchTrigger.focus({ preventScroll: true });
   } else if (storyStartedFrom === "development" && developmentToolsEnabled) {
     testStoryButton.focus({ preventScroll: true });
   }
@@ -638,11 +792,6 @@ function finishStory(runId) {
 
 function startStory(source = "development") {
   if (!hasEntered || isPaused || appState !== "exploring") return;
-
-  if (source === "development" && lanternProgress > 0) {
-    setLanternProgress(0, false);
-    lanternProgressStatus.textContent = "Development playback started without lantern progress.";
-  }
 
   const runId = ++storyRunId;
   storyStartedFrom = source;
@@ -679,17 +828,49 @@ if (typeof reducedMotionQuery.addEventListener === "function") {
 enterButton.addEventListener("click", enterExperience);
 playPauseButton.addEventListener("click", () => setPaused(!isPaused));
 testStoryButton.addEventListener("click", () => startStory("development"));
-lanternTrigger.addEventListener("click", () => activateLantern(false));
-lanternTrigger.addEventListener("keydown", (event) => {
+torchTrigger.addEventListener("pointerdown", beginTorchDrag);
+torchTrigger.addEventListener("pointermove", moveTorch);
+torchTrigger.addEventListener("pointerup", endTorchDrag);
+torchTrigger.addEventListener("pointercancel", () => cancelPhysicalDrag(true));
+torchTrigger.addEventListener("lostpointercapture", () => {
+  if (torchDrag) cancelPhysicalDrag(true);
+});
+torchTrigger.addEventListener("keydown", (event) => {
+  if (event.key === "Escape") {
+    event.preventDefault();
+    cancelTorchSelection(true);
+    return;
+  }
   if (event.key !== "Enter" && event.key !== " ") return;
   event.preventDefault();
-  activateLantern(true);
+  if (torchMode === "selected") cancelTorchSelection(true);
+  else selectTorch(true);
+});
+lanternTrigger.addEventListener("click", () => {
+  igniteLantern(false);
+});
+lanternTrigger.addEventListener("keydown", (event) => {
+  if (event.key === "Escape") {
+    event.preventDefault();
+    cancelTorchSelection(true);
+    return;
+  }
+  if (event.key === "Enter" || event.key === " ") {
+    event.preventDefault();
+    igniteLantern(true);
+  }
+});
+
+experience.addEventListener("keydown", (event) => {
+  if (event.key !== "Escape" || torchMode !== "selected") return;
+  event.preventDefault();
+  cancelTorchSelection(true);
 });
 
 function recordExplorationActivity(event) {
-  if (isPaused || appState !== "exploring" || lanternFeedbackBusy || lanternStoryPending) return;
+  if (isPaused || appState !== "exploring" || storyStartPending) return;
   const target = event.target;
-  if (target.closest?.("#lantern-trigger, #play-pause-button, #test-story-button")) return;
+  if (target.closest?.("#torch-trigger, #lantern-trigger, #play-pause-button, #test-story-button")) return;
   resetHintClock();
 }
 
@@ -713,7 +894,19 @@ lanternFeedbackAudio.addEventListener("playing", () => {
 lanternFeedbackAudio.addEventListener("error", () => {
   lanternFeedbackUnavailable = true;
   if (hasEntered) {
-    reportAudioFailure("The lantern still responds visually, but its feedback sound is unavailable.");
+    reportAudioFailure("The torch and lantern still respond visually, but their feedback sound is unavailable.");
+  }
+});
+lanternIgnitionAudio.addEventListener("playing", () => {
+  ignitionAudioUnavailable = false;
+});
+lanternIgnitionAudio.addEventListener("ended", () => {
+  ignitionAudioActive = false;
+});
+lanternIgnitionAudio.addEventListener("error", () => {
+  ignitionAudioUnavailable = true;
+  if (activeState() === "story") {
+    reportAudioFailure("The lantern still lights visually, but its ignition sound is unavailable.");
   }
 });
 

@@ -392,12 +392,118 @@ This plan preserves the completed Phase 1 experience and follows the same small-
 - Story 2 should use the existing cottage as its principal stage and show one playful escaped shadow returning without becoming threatening. Story 3 should connect the King, tower/moon, and a miniature magical carnival without obscuring the established focal point. These are proposed constraints, not approved choreography.
 - Any new external audio must be individually verified as CC0 or public domain and recorded in `research.md` before integration. Original locally generated cues remain an option.
 
-### [ ] Phase 2 Checkpoint 6: Phase 1 peer discovery playtest
+### [x] Phase 2 Checkpoint 6: Story 1 peer-feedback revision
 
-- Recruit peer Users and let each person explore the deployed site on a smartphone without instructions or assistance.
-- Record whether they enter successfully, notice Play/Pause, discover the lantern, understand all three awakening stages, complete Story 1, and attempt replay.
-- Record non-identifying observations and post-test comments, separating what Users did or said from interpretation.
-- Identify only consequential revisions; obtain Developer approval before changing completed Phase 1 behavior.
+**Actual peer observations supplied by the Developer:**
+
+- Participants struggled to identify where to touch to start the interaction.
+- Participants were unsure how many times they needed to tap the lantern.
+- Participants liked the soundtrack and the project's color theme and palette.
+
+No participant quotations, dates, devices, participant count, or further test results were supplied. Do not infer them or mark the revision as an improvement until it is retested.
+
+**Developer interpretation:**
+
+- Story 1's narrative may be too vague for first-time Users.
+- The current three-tap interaction does not clearly communicate why the King appears.
+
+**Developer-proposed and approved creative revision:**
+
+- Replace the three-tap sequence with *Light the Lantern, Awaken the King*.
+- Add a recognizable, touch-friendly burning stick or torch in the existing cut-paper forest.
+- Let the User bring its flame to a generous lantern target so the lantern lights and causally awakens the King.
+- Preserve the approved palette, soundtrack, composition, King artwork, crown design, single King silhouette/eye structure, and approximately eight-second story.
+- Reset the scene for discovery and replay after completion.
+
+**Developer approval:** The lower-left torch placement, direct drag path, two-step accessible fallback, generous lantern target, revised hints, ignition transition, and reset behavior were approved before implementation.
+
+**Smallest proposed build:**
+
+1. Add one interactive SVG torch group and a larger transparent hit area without moving existing scene features. Proposed placement: nestled in the lower-left foreground foliage, visually separate from the Play/Pause control and lantern.
+2. Replace the lantern activation counter with a compact interaction controller for `idle`, `dragging` or `carried`, `near-lantern`, `igniting`, and `story`. Reuse the existing global `intro`, `exploring`, `story`, and `paused` controller.
+3. For pointer input, use Pointer Events and pointer capture. Convert client coordinates through the SVG screen transform, clamp movement to the stage, and test the flame point against an enlarged invisible lantern drop region.
+4. For the accessible non-drag path, make both torch and lantern keyboard-focusable controls. Tap/click/Enter/Space on the torch enters a carried state and moves focus to the lantern for keyboard input; activating the lantern lights it. Activating the torch again or pressing Escape cancels and restores it.
+5. Use a restrained flame/lantern pulse when near the target, an announced carried state, and a brief successful ignition response. Reduced motion removes dragged-object travel animations and uses opacity/light changes, while direct pointer tracking remains under the User's control.
+6. On success, atomically lock the interaction and start the existing story once. Do not reveal the King before the existing story timeline and do not add King or eye artwork.
+7. On pause during a live drag, cancel the drag and restore the torch. Pause/resume any accepted ignition animation and the story through the existing shared animation/audio controller.
+8. On story completion, restore the unlit lantern and torch origin, clear pointer/selection state, restart hints, enable replay, and return focus only for keyboard-originated playback.
+9. Remove the obsolete three-step lantern progress code, three-tap ARIA copy, and active use of the three feedback cues only after the replacement passes regression checks. Preserve source files and their history unless a later cleanup is separately approved.
+
+**Approved hints at the existing inactivity thresholds:**
+
+- First: “A little flame waits among the roots...”
+- Second: “Perhaps the flame belongs somewhere else.”
+- Third: “The lantern above is waiting to be lit.”
+
+**Agent checks after implementation:**
+
+- Parse and source-structure checks; verify there is one story-start guard and one King silhouette/eye set.
+- Programmatic state checks for pickup, cancellation, near-target feedback, failed drop, accepted ignition, pause/resume, story completion, and repeated replay.
+- Confirm pointer coordinates and hit targets at the target portrait viewports.
+- Confirm the approximately eight-second story audio and animation files are unchanged and all runtime files serve successfully.
+- Report rendered, listening, touch, or physical-device results only if actually performed.
+
+**Implementation evidence — awaiting Developer verification:**
+
+- Added one original lower-left SVG torch with a 72-by-112-viewBox-unit hit area, animated outer and inner flame shapes, visible focus/selection treatment, and reduced-motion opacity behavior.
+- Replaced the three-tap counter with `idle`, `selected`, `dragging`, `near-lantern`, `returning`, and `igniting` interaction modes while preserving the existing global app states.
+- Added pointer capture, viewport-independent SVG coordinate conversion, an elliptical lantern drop region, stage-bound movement, unsuccessful-drop return, tap/click selection, Enter/Space operation, and Escape cancellation.
+- A successful drag or fallback activation enters the unchanged eight-second Story 1 timeline immediately. Its existing opening lantern flare now provides the approved warm ignition transition before the existing King reveal; no King, eye, face, or crown SVG was duplicated.
+- Story completion resets the torch, lantern interaction, hints, focus behavior, and replay guard. A live drag is cancelled to its origin when the shared Pause control is used; selected state and story state remain pause-aware.
+- Reused the first two existing original feedback cues for pickup/selection and cancellation/failed drop. The approved Story 1 soundtrack supplies the successful ignition and awakening audio.
+- Agent check: `node --check` passed for `app.js` and all three audio-build scripts.
+- Agent source check: no obsolete three-tap state identifiers, progress selectors, or progress-status element remain; exactly one King silhouette path, one eye path, and one face-detail group remain.
+- Agent preservation check: Git object hashes for `ambient-midnight.wav` and `story-one-crown.wav` match `HEAD`, confirming both approved playback files are unchanged.
+- Agent server check: the page, stylesheet, script, ambient WAV, Story 1 WAV, and two actively reused feedback cues returned HTTP 200 from a local server.
+- Rendered-browser limitation: headless Chrome and Edge both failed before rendering because their GPU processes could not initialize in this environment. No visual, pointer, listening, or physical-device result is claimed.
+- Checkpoint 6 remains open pending Developer review and the verification tasks below.
+
+**Developer review and focused refinement request:**
+
+- Developer observation: the drag-to-light interaction is working well, especially the King's appearance.
+- Approved refinement: enlarge the torch slightly and raise it within the lower-left foreground while preserving its art direction and touch target.
+- Approved refinement: remove the lantern's exploratory warm glow, light its existing glow and glass smoothly only after a successful ignition, and return it to darkness after Story 1.
+- Approved refinement: add one subtle, appropriately licensed ignition sound that plays once per successful ignition and follows shared Pause/Resume.
+- Preserve all other approved interaction, accessibility, reduced-motion, replay, King, crown, Story 1 animation, soundtrack, and composition behavior.
+
+**Focused refinement implementation evidence — awaiting Developer verification:**
+
+- Wrapped the existing torch art and hit area in one placement transform that scales them to 114% and raises them 28 SVG units; the drag controller's flame origin was updated to the transformed position without changing the drop target or input paths.
+- Removed the lantern's exploration flicker. Its halo now defaults to fully transparent and its glass to dark grayscale; two new animations owned by the existing eight-second story timeline raise them smoothly to warm amber and return them to the dark base state before reset. Reduced motion retains the lighting change without the ignition-scale expansion.
+- Added brachern's verified CC0 “Match Ignite (No Strike)” as `assets/audio/lantern-ignition.mp3` at restrained volume. A dedicated one-shot state prevents development playback or repeated state updates from starting it; shared Pause/Resume pauses and resumes it, and story completion resets it.
+- Added the ignition asset to the explicit GitHub Pages runtime manifest without deploying it.
+- The approved King, eyes, face, crown, Story 1 audio file, and overall story choreography were not edited.
+- Agent source/license check: the official Freesound page identifies sound `398448` by brachern as a 0.848-second stereo ignition and explicitly labels it Creative Commons 0. The unchanged high-quality MP3 preview is 23,483 bytes with SHA-256 `98474592F23D2EA69558D98F99D7D934416DAAF7ECBB2B792B5DA48F623ACCB8`.
+- Agent code checks: `node --check` passed for `app.js` and all three audio-build scripts; CSS opening and closing brace counts both equal 135; source inspection found no exploration-state rule that exposes the lantern glow.
+- Agent preservation check: the ambient and Story 1 WAV Git object hashes still match `HEAD`, and source inspection still finds exactly one King silhouette, eye path, and face-detail group.
+- Agent server check: the page, stylesheet, script, ambient WAV, Story 1 WAV, ignition MP3, and two active interaction cues each returned HTTP 200 from a local server.
+- Verification limit: the Agent did not claim rendered appearance, audible mix quality, pointer behavior, or physical-device behavior for this refinement. Those remain Developer checks.
+- Checkpoint 6 remains open until the Developer visually and audibly verifies these refinements.
+
+**Developer verification — confirmed results only:**
+
+The Developer first confirmed that the revised torch placement, initially dark lantern, ignition animation, and ignition sound meet the intended creative direction. The Developer then reported these Checkpoint 1 regression results:
+
+- [x] Drag and drop — Passed.
+- [x] Failed drop — Passed.
+- [x] Accessibility fallback — Passed.
+- [x] Pause/Resume — Passed.
+- [x] Replay and reset — Passed.
+- [x] Reduced motion — Passed.
+- [x] Hints — Passed.
+- [x] Physical smartphone — Passed.
+
+The Developer supplied no observations or remaining issues. No particular desktop browser, mouse test, pen test, phone model, mobile browser, elapsed-time measurement, or follow-up peer result was reported, so none is inferred here.
+
+**Acceptance reconciliation:**
+
+- The Developer results verify the complete interaction's successful path, failure recovery, accessible alternate path, centralized Pause/Resume, replay/reset, reduced-motion behavior, hint behavior, and operation on a physical smartphone.
+- The earlier Developer reviews verify the intended torch placement, dark lantern, ignition animation and sound, and continuity of the approved King appearance.
+- Agent source checks verify Pointer Events support for mouse, touch, and pen; explicit Enter/Space and Escape handling; visible focus and selected-state styling; the enlarged torch hit area; generous lantern target; input locking; one-shot ignition; and the single story-start guard. These are source-level checks, not additional Developer device-test claims.
+- Agent preservation checks verify that the approved ambient and Story 1 soundtrack files are byte-for-byte unchanged, the story duration remains configured at 8,000 milliseconds, and only one King silhouette, eye path, and face-detail group remain.
+- Follow-up peer testing is intentionally deferred until this focused revision is available on the public GitHub Pages build; it is evidence for the later complete-app playtest checkpoint, not a prerequisite for publishing this revision.
+
+The approved Story 1 revision satisfies its documented acceptance criteria using the combined Developer regression results and Agent structural checks. Phase 2 Checkpoint 1 (numbered Checkpoint 6 in this cumulative plan) is complete. Story 2 remains excluded from implementation until its creative storyboard and interaction proposal are approved.
 
 ### [ ] Phase 2 Checkpoint 7: Specify and storyboard Story 2
 
@@ -441,3 +547,11 @@ This plan preserves the completed Phase 1 experience and follows the same small-
 ## Saving transcripts
 
 When directed, save the complete conversation as `transcripts/plan-YYYY-MM-DD_HHMMSS.md` or `transcripts/build-YYYY-MM-DD_HHMMSS.md`, label messages `Developer` and `Agent`, and confirm the path.
+
+### Transcript preservation workflow
+
+- `AGENTS.md` requires a complete timestamped transcript only when the Developer directs the Agent to save the current session. `research.md`, `spec.md`, and this file provide context-specific filename prefixes; `brief.md` and the current root `README.md` add no further transcript requirement.
+- The repository currently contains only `transcripts/.gitkeep`; no earlier verbatim Agent conversations are preserved here. Planning, research, specifications, Git history, and generated summaries are evidence of decisions but must not be relabeled as transcripts.
+- At the end of every approved planning, research, implementation, revision, or testing session—and before starting a new chat—the Developer should say: “Save the complete current conversation transcript.” The Agent should save all available Developer and Agent messages verbatim, label the speakers, use the appropriate `research-`, `spec-`, `plan-`, or `build-` prefix plus local timestamp, and confirm the path.
+- Save transcripts under `project-4-template/transcripts/`. Keep one file per conversation session so the records are chronological, reviewable, and included in the source repository and final repository ZIP while remaining outside the public website artifact.
+- If an older conversation remains visible in its original product history, export or copy it from that source and label it accurately with its original scope. If only a summary or partial context is available, preserve it as a clearly labeled summary or partial record rather than reconstructing missing messages.

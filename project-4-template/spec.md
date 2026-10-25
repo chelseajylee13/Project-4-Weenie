@@ -109,6 +109,25 @@ Checkpoint 5 adds the final three-step lantern trigger, persistent hollow awaken
 
 The later stories, *The Shadow That Escaped* and *The King's Midnight Invitation*, remain approved premises but are outside Phase 1 implementation. Their detailed triggers and timing remain open until the first story has been tested.
 
+### Phase 2 Story 1 revision — approved implementation contract
+
+Peer testing found that participants struggled to identify where to touch and were unsure how many times to tap the lantern. The approved creative response is *Light the Lantern, Awaken the King*: replace the three-tap sequence with one visible burning stick or torch that the User brings to the hanging lantern.
+
+The smallest proposed interaction contract is:
+
+- Place one original cut-paper torch visibly in the lower-left forest foreground, slightly enlarged and raised above the densest roots, with a minimum 48-by-48-CSS-pixel effective target at supported phone sizes. Give its flame a gentle flicker plus clear hover, touch, selected, and focus feedback.
+- Support direct pointer dragging with pointer capture for mouse, touch, and pen. Keep the torch within the stage and use SVG coordinates so the interaction remains aligned at every viewport size.
+- Treat a generous invisible region around the lantern as the successful drop target. While the flame is near that region, give non-color-only feedback through a restrained lantern pulse and flame/torch movement; reduced-motion mode uses opacity and lighting emphasis without travel-dependent feedback.
+- Provide a non-drag path using the same two objects: activating the torch with tap, click, Enter, or Space enters a clearly announced carried state; activating the lantern then lights it. This preserves the cause-and-effect relationship instead of using an unrelated fallback control.
+- During exploration the lantern has no warm glow: its glow is fully transparent and its glass is dark and desaturated. An unsuccessful release returns the torch to its starting place and leaves the story available. A successful light action is accepted only once, locks both targets, hides hints, and smoothly raises the existing lantern glow and glass to warm amber during the opening of the existing Story 1 timeline without exposing a second King silhouette or eye layer.
+- Play the approved CC0 `lantern-ignition.mp3` once at restrained volume for each accepted ignition. It pauses and resumes with the shared control, does not play for failed drops or development-only playback, and resets after Story 1 so replay produces one new ignition.
+- Preserve the existing approximately eight-second Story 1 animation and audio cue. The King begins hidden and is revealed by the existing timeline after the lantern lights.
+- Pause cancels an active physical drag back to its origin. Any accepted ignition feedback and the complete story use pause-aware Web Animations/audio behavior. Resume must never duplicate the story start.
+- Story completion cancels the temporary lantern-light animations so the lantern returns to its dark exploratory state, restores the torch at its origin, resets ignition audio, restarts the hint clock, and enables replay. Keyboard-originated playback returns focus to the torch; pointer playback does not force focus.
+- Replace the three-tap progress announcements with torch-and-lantern status messages. Preserve the existing 12-, 24-, and 36-second inactivity thresholds and use these approved hints in order: “A little flame waits among the roots...”, “Perhaps the flame belongs somewhere else.”, and “The lantern above is waiting to be lit.” Hints disappear during Story 1, pause with the shared control, and restart after reset.
+
+Acceptance requires touch, mouse, Enter, and Space operation; visible focus; an effective touch target of at least 48 CSS pixels; clear pickup, near-target, unsuccessful-drop, successful-light, locked, and reset states; shared Pause/Resume and reduced-motion behavior; no accidental or duplicate story starts; replay without reload; and regression verification of the approved Story 1 visuals, audio, timing, ambience, and layout. Stories 2 and 3 remain excluded from this focused revision.
+
 ## Saving the transcript
 
 When directed, save the complete conversation as `transcripts/spec-YYYY-MM-DD_HHMMSS.md`, label messages `Developer` and `Agent`, and confirm the path.

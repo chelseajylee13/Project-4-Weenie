@@ -223,7 +223,7 @@
             tabindex="0"
             focusable="true"
             aria-label="Hanging lantern"
-            aria-describedby="lantern-progress-status"
+            aria-describedby="torch-interaction-status"
             aria-disabled="true"
           >
             <circle class="ambient-motion lantern-glow" cx="247" cy="409" r="91" fill="url(#lantern-light)" filter="url(#soft-glow)"/>
@@ -315,6 +315,28 @@
             <path d="M16 758c25-15 47-16 66-4M308 752c23-14 45-13 66 3" fill="none" stroke="#5a415f" stroke-width="1.5" opacity=".62"/>
           </g>
 
+          <g
+            id="torch-trigger"
+            class="torch-trigger"
+            role="button"
+            tabindex="-1"
+            aria-label="Burning torch. Select it to carry its flame."
+            aria-describedby="torch-interaction-status"
+            aria-disabled="true"
+          >
+            <g class="torch-placement" transform="translate(0 -28) translate(86 675) scale(1.14) translate(-86 -675)">
+              <g class="torch-art" aria-hidden="true">
+                <path class="torch-stick" d="M74 719q8-31 16-62" fill="none" stroke="#17131b" stroke-width="9" stroke-linecap="round"/>
+                <path d="M77 716q8-31 16-59" fill="none" stroke="#5c3d32" stroke-width="2" stroke-linecap="round" opacity=".72"/>
+                <path d="M82 663q8 5 17 3M80 669q8 5 17 3" fill="none" stroke="#aa7543" stroke-width="3.5" stroke-linecap="round"/>
+                <path class="torch-flame-outer" d="M93 661c-13-7-9-19 3-30-2 10 8 11 6 22-1 7-5 10-9 8z" fill="#d88c3f"/>
+                <path class="torch-flame-inner" d="M94 658c-6-5-3-12 3-18 0 6 5 8 3 13-1 4-3 6-6 5z" fill="#ffd580"/>
+                <path d="M83 660q9-6 18 1l-2 7q-9 5-18-1z" fill="#211823" stroke="#b07b47" stroke-width="1.4"/>
+              </g>
+              <rect class="torch-hit-area" x="50" y="621" width="72" height="112" rx="30" fill="transparent"/>
+            </g>
+          </g>
+
           <g id="paper-proscenium" fill="none" stroke="#0e0b12" stroke-linecap="round" aria-hidden="true">
             <path d="M0 113c16 2 25 12 28 29 2 12-5 20-13 16-7-3-6-12-1-15" stroke-width="8"/>
             <path d="M390 112c-16 2-24 12-27 29-2 12 5 19 13 15 6-3 5-11 1-14" stroke-width="8"/>
@@ -351,7 +373,7 @@
 
         <p class="motion-status" id="motion-status"></p>
         <p class="visually-hidden" id="playback-status" aria-live="polite"></p>
-        <p class="visually-hidden" id="lantern-progress-status" aria-live="polite">The King silhouette, eyes, and crown are hidden. No awakening steps are complete.</p>
+        <p class="visually-hidden" id="torch-interaction-status" aria-live="polite">The torch rests among the roots. Select it, then light the hanging lantern.</p>
         <audio id="ambient-audio" preload="auto" loop aria-hidden="true">
           <source src="assets/audio/ambient-midnight.wav" type="audio/wav">
         </audio>
@@ -359,6 +381,9 @@
           <source src="assets/audio/story-one-crown.wav" type="audio/wav">
         </audio>
         <audio id="lantern-feedback-audio" preload="auto" aria-hidden="true"></audio>
+        <audio id="lantern-ignition-audio" preload="auto" aria-hidden="true">
+          <source src="assets/audio/lantern-ignition.mp3" type="audio/mpeg">
+        </audio>
       </section>
 
       <section class="story-cover" id="start-screen" aria-labelledby="cover-title">
