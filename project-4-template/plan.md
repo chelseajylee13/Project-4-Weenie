@@ -505,12 +505,53 @@ The Developer supplied no observations or remaining issues. No particular deskto
 
 The approved Story 1 revision satisfies its documented acceptance criteria using the combined Developer regression results and Agent structural checks. Phase 2 Checkpoint 1 (numbered Checkpoint 6 in this cumulative plan) is complete. Story 2 remains excluded from implementation until its creative storyboard and interaction proposal are approved.
 
+**Checkpoint commit and public deployment evidence:**
+
+- Commit `843f583` (`Complete Story 1 drag-to-light revision`) contains the focused implementation, CC0 ignition asset, deployment manifest, project-document updates, and current-session transcript and was pushed to `origin/main`.
+- GitHub Actions Pages run `40154136342` completed successfully for exact head SHA `843f583fe239071b7b56cce57b3b09578df0bd6c`.
+- Agent HTTPS verification at `https://chelseajylee13.github.io/Project-4-Weenie/` returned HTTP 200 for the page, JavaScript, stylesheet, and new 23,483-byte ignition MP3. The deployed HTML includes the torch and ignition-audio elements, the deployed script includes the ignition controller and 8,000-millisecond Story 1 duration, and the deployed stylesheet includes the torch rules.
+- This confirms publication and deployed source markers, not a new rendered, listening, assistive-technology, physical-device, or peer-test result. Follow-up public peer testing remains pending.
+
 ### [ ] Phase 2 Checkpoint 7: Specify and storyboard Story 2
 
-- Turn *The Shadow That Escaped* into an approved 5–10-second beginning/middle/end timeline centered on the cottage.
-- Approve its trigger, three-step or equivalent progress language, provisional hints, shadow-puppet artwork, reduced-motion telling, and licensed/original audio plan.
-- Resolve how its discovery state coexists with Story 1 without competing targets or simultaneous progress.
-- Do not code until the storyboard and acceptance criteria are approved.
+**Proposed creative concept — awaiting Developer approval:**
+
+*The Shadow That Escaped* begins at the existing crooked cottage. A visitor knocks once on a new cut-paper ring mounted on the cottage door. The nearby window answers with a visible paper-curtain movement and a soft glow pulse. Activating that answering window releases the cottage's own playful shadow for an approximately eight-second escape-and-return story. This two-object `door → window` interaction communicates progress without repeating Story 1's drag mechanic or the former ambiguous repeated-tap count.
+
+**Proposed interaction flow:**
+
+1. During exploration, the door ring has a subtle occasional sway and a comfortable invisible target. It is visually quieter than the torch and lantern so the tree remains the primary focal point.
+2. Touch, click, Enter, or Space on the door produces one wooden knock, a small paper-door tremor, and an announced “The cottage answers at the window” state. The window curtain shifts open and stays visibly changed, providing non-color-only progress.
+3. Touch, click, Enter, or Space on the answering window produces a short glassy/papery response and starts Story 2 exactly once. Activating the window before the knock gives a restrained closed-window response but does not advance.
+4. Escape while the cottage is primed returns its door and window to their exploratory state. Starting either story atomically clears incomplete interaction state from the other story so no stale selection or audio remains.
+5. Story completion restores the cottage, door ring, and window; restarts the shared hint clock; unlocks both stories; and returns keyboard focus to the door only when Story 2 began by keyboard.
+
+**Proposed approximately eight-second storyboard:**
+
+- **Beginning, 0.0–2.0 seconds:** The activated window brightens, then its light briefly gutters. A single flattened cottage-shadow shape peels from beneath the roofline and lands on the midground bank with a soft paper snap.
+- **Middle, 2.0–5.6 seconds:** The escaped shadow scampers in two playful bounds toward the tree roots, stretches tall as if delighted by its freedom, then notices the cottage window pulsing like a beacon. The existing King artwork remains hidden and untouched.
+- **End, 5.6–8.0 seconds:** The shadow turns, folds itself into a small paper ribbon, and slips back through the window. The curtain settles, the window gives one contented warm blink, and a tiny chimney puff curls into a brief wave before all Story 2 effects dissolve back to exploration.
+
+Reduced motion would replace the long scamper and stretch with three staged opacity/shape poses: detached beside the cottage, paused near the roots, and returned at the window. The same beginning, decision, and ending remain readable without travel-heavy motion.
+
+**Proposed sound direction:**
+
+- Create original project audio rather than introducing another external asset: one dry wooden knock for the door, one soft paper-and-glass response for the window, and an approximately eight-second story mix built from papery footfalls, a restrained airy scurry, a returning fold, and a quiet resolving chime.
+- Keep the mix lighter and slightly more playful than Story 1, with enough headroom to remain clear over the unchanged ambient loop. All Story 2 sounds use the centralized pause/resume and one-player-per-cue rules.
+
+**Proposed progressive hints at the shared inactivity thresholds:**
+
+1. “The crooked cottage seems to be listening...”
+2. “Its little door has not heard a visitor in years.”
+3. “Knock once, then watch for an answer.”
+
+**Proposed coexistence and acceptance boundaries:**
+
+- Story 1 and Story 2 remain independently replayable, but the global story lock permits only one story timeline at a time.
+- The torch and cottage can both be discovered during exploration. Beginning one interaction cancels only the other story's temporary selected or primed state; completed stories do not permanently disable either trigger.
+- Story 2 must pass touch, mouse, Enter, Space, visible-focus, unsuccessful-window, Escape-cancel, Pause/Resume, reduced-motion, replay/reset, repeated-story, and Story 1 regression checks.
+- Verify an effective target of at least 48 CSS pixels for both cottage controls on supported phone sizes and preserve the tree/lantern focal hierarchy and current portrait framing.
+- Do not create Story 2 artwork, audio, or code until the Developer approves or revises this proposal.
 
 ### [ ] Phase 2 Checkpoint 8: Implement and verify Story 2
 
