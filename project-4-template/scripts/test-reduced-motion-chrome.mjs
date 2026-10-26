@@ -39,7 +39,8 @@ const server = createServer(async (request, response) => {
 
 await new Promise((resolveListen) => server.listen(0, "127.0.0.1", resolveListen));
 const appPort = server.address().port;
-const debugPort = 9331;
+// Use an isolated port so an interrupted earlier diagnostic cannot capture this run.
+const debugPort = 12000 + Math.floor(Math.random() * 20000);
 const profilePath = await mkdtemp(join(tmpdir(), "project-4-chrome-"));
 const chrome = spawn(chromePath, [
   "--headless=new",
@@ -306,6 +307,88 @@ async function exercise(url, label) {
     Object.assign(lifecycle, { storyTwoPauseResume, storyTwoReset, storyTwoReplayState, storyTwoReplayReset });
   }
 
+  let storyThree = null;
+  if (label === "HTTP") {
+    console.error(`${label}: testing Story 3 completion gate and bell-rope path`);
+    await navigate(url);
+    await clickSelector("#enter-button");
+    const testButtonState = await evaluate(`({
+      visible: getComputedStyle(document.querySelector("#test-story-three-button")).display !== "none",
+      disabled: document.querySelector("#test-story-three-button").disabled
+    })`);
+    const initiallyLocked = await evaluate(`({
+      unlocked: document.body.dataset.storyThreeUnlocked,
+      enabled: document.querySelector("#bell-rope-trigger").dataset.enabled,
+      hidden: document.querySelector("#bell-rope-trigger").getAttribute("aria-hidden"),
+      tabIndex: document.querySelector("#bell-rope-trigger").getAttribute("tabindex"),
+      visible: getComputedStyle(document.querySelector("#bell-rope-trigger")).visibility,
+      hintTexts: [...document.querySelectorAll("#scene-hint")].map((node) => node.textContent)
+    })`);
+    let afterStoryOne = null;
+    let afterUnlock = null;
+    let bellReceiver = null;
+    if (runFullLifecycle) {
+      await clickSelector("#torch-trigger .torch-hit-area");
+      await clickSelector("#lantern-trigger .lantern-hit-area");
+      await waitForExploring();
+      afterStoryOne = await evaluate(`({
+        unlocked: document.body.dataset.storyThreeUnlocked,
+        enabled: document.querySelector("#bell-rope-trigger").dataset.enabled,
+        hidden: document.querySelector("#bell-rope-trigger").getAttribute("aria-hidden")
+      })`);
+      await clickSelector("#cottage-door-trigger .cottage-hit-area");
+      await clickSelector("#cottage-window-trigger .cottage-hit-area");
+      await waitForExploring();
+      afterUnlock = await evaluate(`({
+        unlocked: document.body.dataset.storyThreeUnlocked,
+        enabled: document.querySelector("#bell-rope-trigger").dataset.enabled,
+        hidden: document.querySelector("#bell-rope-trigger").getAttribute("aria-hidden"),
+        tabIndex: document.querySelector("#bell-rope-trigger").getAttribute("tabindex"),
+        status: document.querySelector("#story-three-interaction-status").textContent
+      })`);
+      bellReceiver = await clickSelector("#bell-rope-trigger .bell-rope-hit-area");
+    }
+    const started = await evaluate(`({
+      activeState: document.body.dataset.activeState,
+      busy: document.querySelector("#experience").getAttribute("aria-busy"),
+      status: document.querySelector("#playback-status").textContent
+    })`);
+    storyThree = { testButtonState, initiallyLocked, afterStoryOne, afterUnlock, bellReceiver, started };
+    if (runFullLifecycle) {
+      const pauseResume = await pauseAndResumeStory();
+      await delay(5600);
+      const carnivalSample = await evaluate(`(() => {
+        const carnival = document.querySelector(".story-three-carnival");
+        const box = carnival.getBoundingClientRect();
+        return {
+          opacity: Number(getComputedStyle(carnival).opacity),
+          box: { left: box.left, top: box.top, right: box.right, bottom: box.bottom, width: box.width, height: box.height }
+        };
+      })()`);
+      await delay(2200);
+      const invitationSample = await evaluate(`(() => {
+        const invitation = document.querySelector(".story-three-invitation");
+        const text = document.querySelector(".story-three-invitation-text");
+        const box = invitation.getBoundingClientRect();
+        return {
+          opacity: Number(getComputedStyle(invitation).opacity),
+          text: text.textContent.replace(/\\s+/g, " ").trim(),
+          box: { left: box.left, top: box.top, right: box.right, bottom: box.bottom, width: box.width, height: box.height },
+          fontSize: getComputedStyle(text).fontSize
+        };
+      })()`);
+      const reset = await waitForExploring();
+      await clickSelector("#bell-rope-trigger .bell-rope-hit-area");
+      const replay = await evaluate(`({
+        activeState: document.body.dataset.activeState,
+        busy: document.querySelector("#experience").getAttribute("aria-busy"),
+        status: document.querySelector("#playback-status").textContent
+      })`);
+      const replayReset = await waitForExploring();
+      Object.assign(storyThree, { pauseResume, carnivalSample, invitationSample, reset, replay, replayReset });
+    }
+  }
+
   const result = {
     label,
     url,
@@ -320,6 +403,7 @@ async function exercise(url, label) {
     afterDoor,
     windowReceiver,
     storyTwo,
+    storyThree,
     lifecycle,
   };
 
@@ -343,6 +427,7 @@ async function exercise(url, label) {
         window: windowReceiver.targetBox,
       },
       stories: { one: storyOne.activeState, two: storyTwo.activeState },
+      storyThree: storyThree ? storyThree.started.activeState : "localhost only",
       lifecycle: lifecycle ? "passed" : "not requested",
     }));
   }
@@ -367,6 +452,24 @@ function failures(result) {
   if (storyOne.activeState !== "story" || storyOne.busy !== "true") problems.push(`${label}: lantern fallback did not start Story 1.`);
   if (afterDoor.ready !== "true" || afterDoor.windowEnabled !== "true") problems.push(`${label}: door did not ready the cottage window.`);
   if (storyTwo.activeState !== "story" || storyTwo.busy !== "true") problems.push(`${label}: ready window did not start Story 2.`);
+  if (result.storyThree) {
+    if (result.storyThree.testButtonState.visible) problems.push(`${label}: Story 3 development control leaked into normal exploration.`);
+    if (result.storyThree.initiallyLocked.unlocked !== "false" || result.storyThree.initiallyLocked.enabled !== "false" || result.storyThree.initiallyLocked.hidden !== "true" || result.storyThree.initiallyLocked.tabIndex !== "-1" || result.storyThree.initiallyLocked.visible !== "hidden") problems.push(`${label}: Story 3 was not fully locked at session start.`);
+    if (result.storyThree.afterStoryOne?.unlocked !== "false" || result.storyThree.afterStoryOne?.enabled !== "false" || result.storyThree.afterStoryOne?.hidden !== "true") problems.push(`${label}: Story 1 alone unlocked Story 3.`);
+    if (result.storyThree.afterUnlock && (result.storyThree.afterUnlock.unlocked !== "true" || result.storyThree.afterUnlock.enabled !== "true" || result.storyThree.afterUnlock.hidden !== "false" || result.storyThree.afterUnlock.tabIndex !== "0")) problems.push(`${label}: Story 3 did not unlock after both prerequisite completions.`);
+    if (result.storyThree.bellReceiver && !result.storyThree.bellReceiver.matches) problems.push(`${label}: Story 3 bell-rope hit target did not receive the pointer input.`);
+    if (result.storyThree.afterUnlock && (result.storyThree.started.activeState !== "story" || result.storyThree.started.busy !== "true")) problems.push(`${label}: Story 3 bell-rope path did not start.`);
+    if (result.storyThree.pauseResume) {
+      if (result.storyThree.pauseResume.paused.paused !== "true" || result.storyThree.pauseResume.resumed.paused !== "false") problems.push(`${label}: Story 3 Pause/Resume failed.`);
+      if (result.storyThree.replay.activeState !== "story" || result.storyThree.replay.busy !== "true") problems.push(`${label}: Story 3 replay failed.`);
+      if (result.storyThree.invitationSample.opacity < 0.9) problems.push(`${label}: Story 3 invitation was not solid during its hold.`);
+      if (result.storyThree.invitationSample.text !== "Welcome to Weenie World") problems.push(`${label}: Story 3 invitation text was missing or incorrect.`);
+      if (result.storyThree.invitationSample.box.width < 120 || result.storyThree.invitationSample.box.left < 0 || result.storyThree.invitationSample.box.right > viewportWidth) problems.push(`${label}: Story 3 invitation was not readable within the portrait viewport.`);
+      if (result.storyThree.carnivalSample.opacity < 0.9 || result.storyThree.carnivalSample.box.bottom > 650 || result.storyThree.carnivalSample.box.left < 0 || result.storyThree.carnivalSample.box.right > viewportWidth) problems.push(`${label}: Story 3 carnival was not clearly framed in the lower-middle viewport.`);
+      const invitationCenterX = (result.storyThree.invitationSample.box.left + result.storyThree.invitationSample.box.right) / 2;
+      if (result.storyThree.invitationSample.box.bottom > 650 || invitationCenterX > viewportWidth * 0.7) problems.push(`${label}: Story 3 invitation remained too low or too far into the corner.`);
+    }
+  }
   if (result.lifecycle) {
     const {
       storyOnePauseResume,

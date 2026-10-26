@@ -9,14 +9,18 @@ const motionStatus = document.querySelector("#motion-status");
 const playPauseButton = document.querySelector("#play-pause-button");
 const testStoryButton = document.querySelector("#test-story-button");
 const testStoryTwoButton = document.querySelector("#test-story-two-button");
+const testStoryThreeButton = document.querySelector("#test-story-three-button");
 const playbackStatus = document.querySelector("#playback-status");
 const torchInteractionStatus = document.querySelector("#torch-interaction-status");
 const cottageInteractionStatus = document.querySelector("#cottage-interaction-status");
+const storyThreeInteractionStatus = document.querySelector("#story-three-interaction-status");
 const sceneHint = document.querySelector("#scene-hint");
 const sceneSvg = document.querySelector(".scene-art");
 const ambientAudio = document.querySelector("#ambient-audio");
 const storyAudio = document.querySelector("#story-one-audio");
 const storyTwoAudio = document.querySelector("#story-two-audio");
+const storyThreeAudio = document.querySelector("#story-three-audio");
+const storyThreeUnlockAudio = document.querySelector("#story-three-unlock-audio");
 const cottageKnockAudio = document.querySelector("#cottage-knock-audio");
 const cottageWindowResponseAudio = document.querySelector("#cottage-window-response-audio");
 const lanternFeedbackAudio = document.querySelector("#lantern-feedback-audio");
@@ -27,6 +31,8 @@ const lanternGlass = document.querySelector(".lantern-glass");
 const torchTrigger = document.querySelector("#torch-trigger");
 const cottageDoorTrigger = document.querySelector("#cottage-door-trigger");
 const cottageWindowTrigger = document.querySelector("#cottage-window-trigger");
+const bellRopeTrigger = document.querySelector("#bell-rope-trigger");
+const bellRopeArt = document.querySelector(".bell-rope-art");
 const cottageDoorRing = document.querySelector(".cottage-door-ring");
 const cottageWindowResponse = document.querySelector(".cottage-window-response");
 const kingSilhouetteBase = document.querySelector(".king-silhouette-base");
@@ -54,12 +60,25 @@ const storyTwoShadowHead = document.querySelector(".story-two-shadow-head");
 const storyTwoShadowFace = document.querySelector(".story-two-shadow-face");
 const storyTwoRibbon = document.querySelector(".story-two-ribbon");
 const storyTwoWindowSpark = document.querySelector(".story-two-window-spark");
+const storyThreeLayer = document.querySelector("#story-three-layer");
+const storyThreeTowerGlow = document.querySelector(".story-three-tower-glow");
+const storyThreeTowerWindow = document.querySelector(".story-three-tower-window");
+const storyThreeMoonbeam = document.querySelector(".story-three-moonbeam");
+const storyThreeRibbons = document.querySelector(".story-three-ribbons");
+const storyThreeCarnival = document.querySelector(".story-three-carnival");
+const storyThreeTent = document.querySelector(".story-three-tent");
+const storyThreeWheel = document.querySelector(".story-three-wheel");
+const storyThreeFlags = document.querySelector(".story-three-flags");
+const storyThreeLights = document.querySelector(".story-three-lights");
+const storyThreeInvitation = document.querySelector(".story-three-invitation");
+const storyThreeCrownSeal = document.querySelector(".story-three-crown-seal");
 
 const STORY_DURATION = 8000;
+const STORY_THREE_DURATION = 9500;
 const FULL_AMBIENT_VOLUME = 1;
 const DUCKED_AMBIENT_VOLUME = 0.58;
 const IGNITION_VOLUME = 0.42;
-const HINTS = [
+const BASE_HINTS = [
   { at: 12000, text: "A little flame waits among the roots..." },
   { at: 18000, text: "The crooked cottage seems to be listening..." },
   { at: 24000, text: "Perhaps the flame belongs somewhere else." },
@@ -67,6 +86,12 @@ const HINTS = [
   { at: 36000, text: "The lantern above is waiting to be lit." },
   { at: 42000, text: "Give the door a knock, then follow the light." },
 ];
+const STORY_THREE_HINTS = [
+  { at: 15000, text: "The distant tower keeps its own midnight..." },
+  { at: 27000, text: "A little bell waits beneath the moon." },
+  { at: 39000, text: "Pull the rope to hear the King's invitation." },
+];
+let activeHints = [...BASE_HINTS];
 const LANTERN_FEEDBACK_SOURCES = [
   "assets/audio/lantern-step-1.wav",
   "assets/audio/lantern-step-2.wav",
@@ -89,6 +114,11 @@ let pausedAmbientAnimations = [];
 let storyMasterAnimation = null;
 let storyRunId = 0;
 let activeStoryId = null;
+const completedStoryIds = new Set();
+let storyThreeUnlocked = false;
+let storyThreeUnlockAnimations = [];
+let storyThreeUnlockAudioActive = false;
+let storyThreeUnlockAudioUnavailable = false;
 let audioMixFrame = null;
 let lanternFeedbackUnavailable = false;
 let storyStartedFrom = "development";
@@ -104,6 +134,9 @@ let cottageKnockAudioActive = false;
 let cottageWindowAudioActive = false;
 let cottageKnockAudioUnavailable = false;
 let cottageWindowAudioUnavailable = false;
+let bellRopeMode = "idle";
+let bellRopeDrag = null;
+let lastBellInputWasKeyboard = false;
 let storyStartPending = false;
 let hintElapsed = 0;
 let hintStartedAt = null;
@@ -120,11 +153,17 @@ function activeState() {
 }
 
 function activeStoryName() {
+  if (activeStoryId === "three") return "Story 3";
   return activeStoryId === "two" ? "Story 2" : "Story 1";
 }
 
 function activeStoryAudio() {
+  if (activeStoryId === "three") return storyThreeAudio;
   return activeStoryId === "two" ? storyTwoAudio : storyAudio;
+}
+
+function activeStoryDuration() {
+  return activeStoryId === "three" ? STORY_THREE_DURATION : STORY_DURATION;
 }
 
 function updateStateAttributes() {
@@ -133,6 +172,8 @@ function updateStateAttributes() {
   document.body.dataset.paused = String(isPaused);
   document.body.dataset.torchNear = String(torchMode === "near-lantern");
   document.body.dataset.cottageReady = String(cottageMode === "ready");
+  document.body.dataset.bellPulling = String(bellRopeMode === "pulling");
+  document.body.dataset.storyThreeUnlocked = String(storyThreeUnlocked);
 
   const storyIsActive = activeState() === "story";
   const torchEnabled = hasEntered
@@ -149,8 +190,14 @@ function updateStateAttributes() {
     && !storyStartPending;
   const cottageDoorEnabled = cottageEnabled && cottageMode === "idle";
   const cottageWindowEnabled = cottageEnabled;
+  const bellRopeEnabled = hasEntered
+    && storyThreeUnlocked
+    && appState === "exploring"
+    && !isPaused
+    && !storyStartPending;
   testStoryButton.disabled = isPaused || appState !== "exploring" || storyStartPending || torchDragging;
   testStoryTwoButton.disabled = isPaused || appState !== "exploring" || storyStartPending || torchDragging;
+  testStoryThreeButton.disabled = isPaused || appState !== "exploring" || storyStartPending || torchDragging;
   torchTrigger.dataset.enabled = String(torchEnabled);
   torchTrigger.dataset.selected = String(torchSelected);
   torchTrigger.dataset.dragging = String(torchDragging);
@@ -194,6 +241,11 @@ function updateStateAttributes() {
       ? "The cottage window is glowing and ready. Activate it to follow the escaped shadow."
       : "Cottage window. It is quiet; perhaps the door can wake it.",
   );
+  bellRopeTrigger.dataset.enabled = String(bellRopeEnabled);
+  bellRopeTrigger.dataset.pulling = String(bellRopeMode === "pulling");
+  bellRopeTrigger.setAttribute("aria-disabled", String(!bellRopeEnabled));
+  bellRopeTrigger.setAttribute("aria-hidden", String(!storyThreeUnlocked));
+  bellRopeTrigger.setAttribute("tabindex", bellRopeEnabled ? "0" : "-1");
   playPauseButton.setAttribute("aria-pressed", String(isPaused));
   playPauseButton.setAttribute(
     "aria-label",
@@ -262,11 +314,12 @@ function startHintClock() {
     || torchMode === "near-lantern"
     || torchMode === "returning"
     || cottageMode === "ready"
-    || nextHintIndex >= HINTS.length
+    || bellRopeMode === "pulling"
+    || nextHintIndex >= activeHints.length
     || hintTimer !== null
   ) return;
 
-  const delay = Math.max(0, HINTS[nextHintIndex].at - hintElapsed);
+  const delay = Math.max(0, activeHints[nextHintIndex].at - hintElapsed);
   hintStartedAt = performance.now();
   hintTimer = window.setTimeout(() => {
     hintElapsed += performance.now() - hintStartedAt;
@@ -274,7 +327,7 @@ function startHintClock() {
     hintTimer = null;
 
     if (isPaused || appState !== "exploring" || storyStartPending) return;
-    sceneHint.textContent = HINTS[nextHintIndex].text;
+    sceneHint.textContent = activeHints[nextHintIndex].text;
     sceneHint.dataset.visible = "true";
     nextHintIndex += 1;
     startHintClock();
@@ -287,6 +340,55 @@ function resetHintClock() {
   nextHintIndex = 0;
   hideHint();
   startHintClock();
+}
+
+function syncStoryThreeUnlockAudio() {
+  if (!storyThreeUnlockAudioActive || storyThreeUnlockAudioUnavailable || storyThreeUnlockAudio.ended) return;
+  if (isPaused || appState !== "exploring") {
+    storyThreeUnlockAudio.pause();
+    return;
+  }
+  playAudio(storyThreeUnlockAudio, () => {
+    storyThreeUnlockAudioUnavailable = true;
+    storyThreeUnlockAudioActive = false;
+    reportAudioFailure("The tower still reveals its bell rope visually, but the unlock sound is unavailable.");
+  });
+}
+
+function unlockStoryThree() {
+  if (storyThreeUnlocked || !completedStoryIds.has("one") || !completedStoryIds.has("two")) return;
+  storyThreeUnlocked = true;
+  activeHints = [...BASE_HINTS, ...STORY_THREE_HINTS].sort((a, b) => a.at - b.at);
+  updateStateAttributes();
+  resetHintClock();
+
+  for (const animation of storyThreeUnlockAnimations) animation.cancel();
+  const reduceMotion = reducedMotionQuery.matches;
+  storyThreeUnlockAnimations = [
+    storyThreeTowerGlow.animate(
+      reduceMotion
+        ? [{ opacity: 0 }, { opacity: 0.68, offset: 0.38 }, { opacity: 0.34, offset: 0.76 }, { opacity: 0 }]
+        : [
+          { opacity: 0, transform: "scale(.9)" },
+          { opacity: 0.72, transform: "scale(1.12)", offset: 0.35 },
+          { opacity: 0.38, transform: "scale(1)", offset: 0.74 },
+          { opacity: 0, transform: "scale(.96)" },
+        ],
+      { duration: 1800, easing: "ease-in-out" },
+    ),
+    storyThreeTowerWindow.animate(
+      [{ opacity: 0 }, { opacity: 1, offset: 0.3 }, { opacity: 0.62, offset: 0.78 }, { opacity: 0 }],
+      { duration: 1800, easing: "ease-in-out" },
+    ),
+  ];
+  storyThreeUnlockAudio.pause();
+  storyThreeUnlockAudio.currentTime = 0;
+  storyThreeUnlockAudio.volume = 0.34;
+  storyThreeUnlockAudioUnavailable = false;
+  storyThreeUnlockAudioActive = true;
+  syncStoryThreeUnlockAudio();
+  storyThreeInteractionStatus.textContent = "The distant tower answers. A small bell rope has appeared beneath it.";
+  playbackStatus.textContent = "Stories 1 and 2 are complete. The distant tower has revealed a new bell rope.";
 }
 
 function syncInteractionFeedbackAudio() {
@@ -495,6 +597,69 @@ function cancelCottageReady(returnFocus = false) {
   if (cottageMode !== "ready") return;
   cottageInteractionStatus.textContent = "The cottage settles. Its door and window are ready to discover again.";
   resetCottageInteraction({ announce: false, restartHints: true, restoreFocus: returnFocus });
+}
+
+function resetBellRope({ announce = false, restoreFocus = false } = {}) {
+  const pointerId = bellRopeDrag?.pointerId;
+  bellRopeDrag = null;
+  if (pointerId !== undefined && bellRopeTrigger.hasPointerCapture?.(pointerId)) {
+    bellRopeTrigger.releasePointerCapture(pointerId);
+  }
+  bellRopeMode = "idle";
+  bellRopeArt.style.transform = "";
+  if (announce) {
+    storyThreeInteractionStatus.textContent = storyThreeUnlocked
+      ? "The bell rope settles beneath the tower, ready to be pulled again."
+      : "The distant tower remains quiet.";
+  }
+  updateStateAttributes();
+  if (restoreFocus) bellRopeTrigger.focus({ preventScroll: true });
+}
+
+function activateBellRope(inputWasKeyboard) {
+  if (!hasEntered || !storyThreeUnlocked || isPaused || appState !== "exploring" || storyStartPending) return;
+  lastBellInputWasKeyboard = inputWasKeyboard;
+  storyThreeInteractionStatus.textContent = "The rope pulls the midnight bell. The tower answers with the King's invitation.";
+  bellRopeMode = "idle";
+  bellRopeDrag = null;
+  bellRopeArt.style.transform = "";
+  startStory("three", "bell-rope");
+}
+
+function beginBellRopePull(event) {
+  if (bellRopeTrigger.dataset.enabled !== "true" || event.button !== 0) return;
+  event.preventDefault();
+  bellRopeMode = "pulling";
+  bellRopeDrag = { pointerId: event.pointerId, startY: event.clientY, distance: 0 };
+  bellRopeTrigger.setPointerCapture(event.pointerId);
+  resetHintClock();
+  storyThreeInteractionStatus.textContent = "Bell rope held. Pull downward, or release to ring it.";
+  updateStateAttributes();
+}
+
+function moveBellRope(event) {
+  if (!bellRopeDrag || event.pointerId !== bellRopeDrag.pointerId) return;
+  const distance = Math.max(0, Math.min(24, event.clientY - bellRopeDrag.startY));
+  bellRopeDrag.distance = distance;
+  bellRopeArt.style.transform = `translateY(${distance}px)`;
+}
+
+function endBellRopePull(event) {
+  if (!bellRopeDrag || event.pointerId !== bellRopeDrag.pointerId) return;
+  bellRopeDrag = null;
+  if (bellRopeTrigger.hasPointerCapture?.(event.pointerId)) bellRopeTrigger.releasePointerCapture(event.pointerId);
+  bellRopeMode = "idle";
+  bellRopeArt.style.transform = "";
+  updateStateAttributes();
+  // A short release is the approved tap/click equivalent; a longer release reads as a physical pull.
+  activateBellRope(false);
+}
+
+function cancelBellRopePull(returnFocus = false) {
+  if (bellRopeMode !== "pulling") return;
+  storyThreeInteractionStatus.textContent = "Bell pull cancelled. The rope hangs quietly beneath the tower.";
+  resetBellRope({ restoreFocus: returnFocus });
+  resetHintClock();
 }
 
 function clientToScenePoint(event) {
@@ -726,7 +891,7 @@ function storyTimeSeconds() {
 function syncStoryAudioToTimeline() {
   if (activeState() !== "story" || storyAudioUnavailable) return;
   const audio = activeStoryAudio();
-  const targetTime = Math.min(storyTimeSeconds(), STORY_DURATION / 1000);
+  const targetTime = Math.min(storyTimeSeconds(), activeStoryDuration() / 1000);
   if (Math.abs(audio.currentTime - targetTime) > 0.045) audio.currentTime = targetTime;
 }
 
@@ -748,13 +913,14 @@ function syncStoryAudio() {
 }
 
 function ambientVolumeAt(storyTime) {
+  const storyDuration = activeStoryDuration() / 1000;
   if (storyTime < 0.8) {
     return FULL_AMBIENT_VOLUME
       + (DUCKED_AMBIENT_VOLUME - FULL_AMBIENT_VOLUME) * (storyTime / 0.8);
   }
-  if (storyTime < 7.1) return DUCKED_AMBIENT_VOLUME;
+  if (storyTime < storyDuration - 0.9) return DUCKED_AMBIENT_VOLUME;
   return DUCKED_AMBIENT_VOLUME
-    + (FULL_AMBIENT_VOLUME - DUCKED_AMBIENT_VOLUME) * Math.min(1, (storyTime - 7.1) / 0.9);
+    + (FULL_AMBIENT_VOLUME - DUCKED_AMBIENT_VOLUME) * Math.min(1, (storyTime - (storyDuration - 0.9)) / 0.9);
 }
 
 function updateStoryAudioMix() {
@@ -780,6 +946,7 @@ function setPaused(nextPaused, announce = true) {
 
   if (nextPaused) {
     if (torchMode === "dragging" || torchMode === "near-lantern") cancelPhysicalDrag(false);
+    if (bellRopeMode === "pulling") cancelBellRopePull(false);
     resumeState = activeState();
     isPaused = true;
     setAppState("paused");
@@ -787,6 +954,8 @@ function setPaused(nextPaused, announce = true) {
     ambientAudio.pause();
     storyAudio.pause();
     storyTwoAudio.pause();
+    storyThreeAudio.pause();
+    storyThreeUnlockAudio.pause();
     lanternFeedbackAudio.pause();
     lanternIgnitionAudio.pause();
     cottageKnockAudio.pause();
@@ -811,6 +980,7 @@ function setPaused(nextPaused, announce = true) {
     } else if (appState === "exploring") {
       syncInteractionFeedbackAudio();
       syncCottageFeedbackAudio();
+      syncStoryThreeUnlockAudio();
       startHintClock();
     }
   }
@@ -827,7 +997,7 @@ function setPaused(nextPaused, announce = true) {
 
 function makeStoryAnimation(element, keyframes, options = {}) {
   const animation = element.animate(keyframes, {
-    duration: STORY_DURATION,
+    duration: activeStoryDuration(),
     fill: "both",
     easing: "linear",
     ...options,
@@ -1153,6 +1323,156 @@ function buildStoryTwoAnimations(prefersReducedMotion) {
   ]);
 }
 
+function buildStoryThreeAnimations(prefersReducedMotion) {
+  storyAnimations = [];
+
+  makeStoryAnimation(storyThreeTowerGlow, [
+    { opacity: 0, transform: "scale(.82)", offset: 0 },
+    { opacity: 0.72, transform: prefersReducedMotion ? "scale(1)" : "scale(1.14)", offset: 0.08, easing: "ease-out" },
+    { opacity: 0.46, transform: "scale(1)", offset: 0.22 },
+    { opacity: 0, transform: "scale(.94)", offset: 0.3, easing: "ease-in" },
+    { opacity: 0, transform: "scale(.94)", offset: 1 },
+  ]);
+
+  makeStoryAnimation(storyThreeTowerWindow, [
+    { opacity: 0, transform: "scale(1)", offset: 0 },
+    { opacity: 1, transform: prefersReducedMotion ? "scale(1)" : "scale(1.12)", offset: 0.06, easing: "ease-out" },
+    { opacity: 0.72, transform: "scale(1)", offset: 0.24 },
+    { opacity: 0, transform: "scale(1)", offset: 0.34, easing: "ease-in" },
+    { opacity: 0, transform: "scale(1)", offset: 1 },
+  ]);
+
+  makeStoryAnimation(storyThreeMoonbeam, [
+    { opacity: 0, transform: "scaleY(.25)", offset: 0 },
+    { opacity: 0.13, transform: prefersReducedMotion ? "scaleY(1)" : "scaleY(.72)", offset: 0.12, easing: "ease-out" },
+    { opacity: 0.2, transform: "scaleY(1)", offset: 0.24 },
+    { opacity: 0.12, transform: "scaleY(1)", offset: 0.5 },
+    { opacity: 0, transform: "scaleY(1)", offset: 0.64, easing: "ease-in" },
+    { opacity: 0, transform: "scaleY(1)", offset: 1 },
+  ]);
+
+  const kingPresenceFrames = [
+    { opacity: 0, offset: 0 },
+    { opacity: 0, offset: 0.23 },
+    { opacity: 1, offset: 0.28, easing: "ease-out" },
+    { opacity: 1, offset: 0.49 },
+    { opacity: 0, offset: 0.56, easing: "ease-in" },
+    { opacity: 0, offset: 1 },
+  ];
+  makeStoryAnimation(kingSilhouetteBase, kingPresenceFrames);
+  makeStoryAnimation(kingEyes, kingPresenceFrames);
+  makeStoryAnimation(kingFaceDetails, kingPresenceFrames);
+  makeStoryAnimation(storyCrown, [
+    { opacity: 0, transform: "translateY(0)", offset: 0 },
+    { opacity: 0, transform: "translateY(0)", offset: 0.23 },
+    { opacity: 1, transform: "translateY(0)", offset: 0.28, easing: "ease-out" },
+    { opacity: 1, transform: "translateY(0)", offset: 0.49 },
+    { opacity: 0, transform: "translateY(0)", offset: 0.56, easing: "ease-in" },
+    { opacity: 0, transform: "translateY(0)", offset: 1 },
+  ]);
+  makeStoryAnimation(storyKing, [
+    { transform: "translateY(0) rotate(0deg)", offset: 0 },
+    { transform: "translateY(0) rotate(0deg)", offset: 0.28 },
+    { transform: prefersReducedMotion ? "translateY(0) rotate(0deg)" : "translateY(-1px) rotate(-1.5deg)", offset: 0.42 },
+    { transform: "translateY(0) rotate(0deg)", offset: 0.56 },
+    { transform: "translateY(0) rotate(0deg)", offset: 1 },
+  ]);
+  makeStoryAnimation(storyBacklight, [
+    { opacity: 0, transform: "scale(.92)", offset: 0 },
+    { opacity: 0, transform: "scale(.92)", offset: 0.23 },
+    { opacity: 0.48, transform: "scale(1)", offset: 0.29, easing: "ease-out" },
+    { opacity: 0.42, transform: "scale(1)", offset: 0.5 },
+    { opacity: 0, transform: "scale(.94)", offset: 0.57, easing: "ease-in" },
+    { opacity: 0, transform: "scale(.94)", offset: 1 },
+  ]);
+
+  makeStoryAnimation(storyThreeRibbons, [
+    { opacity: 0, transform: "none", offset: 0 },
+    { opacity: 0, transform: "none", offset: 0.25 },
+    { opacity: 1, transform: "none", offset: 0.31, easing: "ease-out" },
+    { opacity: 1, transform: "none", offset: 0.5 },
+    { opacity: 0, transform: "none", offset: 0.56, easing: "ease-in" },
+    { opacity: 0, transform: "none", offset: 1 },
+  ]);
+  storyThreeRibbons.querySelectorAll("path").forEach((ribbon, index) => {
+    const start = 0.27 + index * 0.035;
+    makeStoryAnimation(ribbon, prefersReducedMotion
+      ? [
+        { opacity: 0, strokeDashoffset: 0, offset: 0 },
+        { opacity: 0, strokeDashoffset: 0, offset: start },
+        { opacity: 1, strokeDashoffset: 0, offset: start + 0.05, easing: "ease-out" },
+        { opacity: 1, strokeDashoffset: 0, offset: 0.5 },
+        { opacity: 0, strokeDashoffset: 0, offset: 0.56 },
+        { opacity: 0, strokeDashoffset: 0, offset: 1 },
+      ]
+      : [
+        { opacity: 0, strokeDashoffset: 1, offset: 0 },
+        { opacity: 1, strokeDashoffset: 1, offset: start },
+        { opacity: 1, strokeDashoffset: 0, offset: 0.5, easing: "cubic-bezier(.3,.65,.35,1)" },
+        { opacity: 0, strokeDashoffset: 0, offset: 0.56 },
+        { opacity: 0, strokeDashoffset: 0, offset: 1 },
+      ]);
+  });
+
+  makeStoryAnimation(storyThreeCarnival, [
+    { opacity: 0, transform: prefersReducedMotion ? "scale(1)" : "scaleY(.18)", offset: 0 },
+    { opacity: 0, transform: prefersReducedMotion ? "scale(1)" : "scaleY(.18)", offset: 0.48 },
+    { opacity: 1, transform: "scale(1)", offset: 0.58, easing: "cubic-bezier(.2,.72,.3,1.04)" },
+    { opacity: 1, transform: "scale(1)", offset: 0.72 },
+    { opacity: 0, transform: prefersReducedMotion ? "scale(1)" : "scale(.82, .28)", offset: 0.8, easing: "ease-in-out" },
+    { opacity: 0, transform: "scale(.88)", offset: 1 },
+  ]);
+  makeStoryAnimation(storyThreeTent, [
+    { transform: prefersReducedMotion ? "none" : "scaleY(.35)", offset: 0 },
+    { transform: prefersReducedMotion ? "none" : "scaleY(.35)", offset: 0.5 },
+    { transform: "scaleY(1)", offset: 0.62, easing: "ease-out" },
+    { transform: "scaleY(1)", offset: 1 },
+  ]);
+  makeStoryAnimation(storyThreeWheel, [
+    { transform: "rotate(0deg)", offset: 0 },
+    { transform: "rotate(0deg)", offset: 0.54 },
+    { transform: prefersReducedMotion ? "rotate(0deg)" : "rotate(42deg)", offset: 0.8, easing: "ease-in-out" },
+    { transform: prefersReducedMotion ? "rotate(0deg)" : "rotate(42deg)", offset: 1 },
+  ]);
+  makeStoryAnimation(storyThreeFlags, [
+    { opacity: 0, transform: "none", offset: 0 },
+    { opacity: 0, transform: "none", offset: 0.54 },
+    { opacity: 1, transform: "none", offset: 0.63, easing: "ease-out" },
+    { opacity: 1, transform: "none", offset: 0.82 },
+    { opacity: 0, transform: "none", offset: 0.86 },
+    { opacity: 0, transform: "none", offset: 1 },
+  ]);
+  makeStoryAnimation(storyThreeLights, [
+    { opacity: 0.2, offset: 0 },
+    { opacity: 0.2, offset: 0.62 },
+    { opacity: 1, offset: 0.68, easing: prefersReducedMotion ? "ease-out" : "steps(1, end)" },
+    { opacity: 0.38, offset: 0.73 },
+    { opacity: 1, offset: 0.78, easing: prefersReducedMotion ? "ease-out" : "steps(1, end)" },
+    { opacity: 0, offset: 0.84 },
+    { opacity: 0, offset: 1 },
+  ]);
+
+  makeStoryAnimation(storyThreeInvitation, [
+    { opacity: 0, transform: prefersReducedMotion ? "translate(-55px, -154px) scale(2.15)" : "translate(0, 0) scale(.35, .18)", offset: 0 },
+    { opacity: 0, transform: prefersReducedMotion ? "translate(-55px, -154px) scale(2.15)" : "translate(0, 0) scale(.35, .18)", offset: 0.745 },
+    { opacity: 1, transform: "translate(-55px, -154px) scale(2.15)", offset: 0.82, easing: "cubic-bezier(.2,.72,.3,1.02)" },
+    { opacity: 1, transform: "translate(-55px, -154px) scale(2.15)", offset: 0.96 },
+    { opacity: 0, transform: "translate(-55px, -154px) scale(2.18)", offset: 1, easing: "ease-in-out" },
+  ]);
+  makeStoryAnimation(storyThreeCrownSeal, [
+    { opacity: 0, transform: "scale(.8)", offset: 0 },
+    { opacity: 0, transform: "scale(.8)", offset: 0.8 },
+    { opacity: 1, transform: "scale(1)", offset: 0.85, easing: "ease-out" },
+    { opacity: 1, transform: "scale(1)", offset: 0.96 },
+    { opacity: 0, transform: "scale(.98)", offset: 1 },
+  ]);
+
+  storyMasterAnimation = makeStoryAnimation(storyThreeLayer, [
+    { opacity: 1 },
+    { opacity: 1 },
+  ]);
+}
+
 function finishStory(runId) {
   if (runId !== storyRunId || activeState() !== "story") return;
 
@@ -1175,13 +1495,23 @@ function finishStory(runId) {
   pausedAmbientAnimations = [];
   resetTorchInteraction();
   resetCottageInteraction({ announce: true, restartHints: false });
-  playbackStatus.textContent = `${completedStoryId === "two" ? "Story 2" : "Story 1"} complete. The forest is ready to replay.`;
+  resetBellRope({ announce: true });
+  if (completedStoryId === "one" || completedStoryId === "two") completedStoryIds.add(completedStoryId);
+  const shouldUnlockStoryThree = !storyThreeUnlocked
+    && completedStoryIds.has("one")
+    && completedStoryIds.has("two");
+  playbackStatus.textContent = `${completedStoryId === "three" ? "Story 3" : completedStoryId === "two" ? "Story 2" : "Story 1"} complete. The forest is ready to replay.`;
+  if (shouldUnlockStoryThree) unlockStoryThree();
   if (completedStoryId === "one" && storyStartedFrom === "torch" && lastTorchInputWasKeyboard) {
     torchTrigger.focus({ preventScroll: true });
   } else if (completedStoryId === "one" && storyStartedFrom === "development" && developmentToolsEnabled) {
     testStoryButton.focus({ preventScroll: true });
   } else if (completedStoryId === "two" && storyStartedFrom === "development" && developmentToolsEnabled) {
     testStoryTwoButton.focus({ preventScroll: true });
+  } else if (completedStoryId === "three" && storyStartedFrom === "development" && developmentToolsEnabled) {
+    testStoryThreeButton.focus({ preventScroll: true });
+  } else if (completedStoryId === "three" && storyStartedFrom === "bell-rope" && lastBellInputWasKeyboard) {
+    bellRopeTrigger.focus({ preventScroll: true });
   } else if (completedStoryId === "two" && storyStartedFrom === "cottage" && lastCottageInputWasKeyboard) {
     cottageDoorTrigger.focus({ preventScroll: true });
   }
@@ -1189,16 +1519,23 @@ function finishStory(runId) {
 
 function startStory(storyId, source = "development") {
   if (!hasEntered || isPaused || appState !== "exploring") return;
-  if (!["one", "two"].includes(storyId)) return;
+  if (!["one", "two", "three"].includes(storyId)) return;
+  if (storyId === "three" && source !== "development" && !storyThreeUnlocked) return;
 
   const runId = ++storyRunId;
   activeStoryId = storyId;
   storyStartedFrom = source;
-  if (storyId === "two") resetTorchInteraction();
+  if (storyId !== "one") resetTorchInteraction();
   resetCottageInteraction({ announce: false, restartHints: false });
+  if (storyId !== "three") resetBellRope();
   pauseHintClock();
   hideHint();
   lanternFeedbackAudio.pause();
+  for (const animation of storyThreeUnlockAnimations) animation.cancel();
+  storyThreeUnlockAnimations = [];
+  storyThreeUnlockAudio.pause();
+  storyThreeUnlockAudio.currentTime = 0;
+  storyThreeUnlockAudioActive = false;
   pausedAmbientAnimations = experience.getAnimations({ subtree: true });
   for (const animation of pausedAmbientAnimations) animation.pause();
 
@@ -1209,8 +1546,11 @@ function startStory(storyId, source = "development") {
   storyAudio.currentTime = 0;
   storyTwoAudio.pause();
   storyTwoAudio.currentTime = 0;
+  storyThreeAudio.pause();
+  storyThreeAudio.currentTime = 0;
 
-  if (storyId === "two") buildStoryTwoAnimations(reducedMotionQuery.matches);
+  if (storyId === "three") buildStoryThreeAnimations(reducedMotionQuery.matches);
+  else if (storyId === "two") buildStoryTwoAnimations(reducedMotionQuery.matches);
   else buildStoryOneAnimations(reducedMotionQuery.matches);
   storyMasterAnimation.finished
     .then(() => finishStory(runId))
@@ -1219,9 +1559,11 @@ function startStory(storyId, source = "development") {
   for (const animation of storyAnimations) animation.play();
   syncStoryAudio();
   startStoryAudioMix();
-  playbackStatus.textContent = storyId === "two"
-    ? "Story 2: The Shadow That Escaped has begun."
-    : "Story 1: The Crown in the Trees has begun.";
+  playbackStatus.textContent = storyId === "three"
+    ? "Story 3: The King's Midnight Invitation has begun."
+    : storyId === "two"
+      ? "Story 2: The Shadow That Escaped has begun."
+      : "Story 1: The Crown in the Trees has begun.";
 }
 
 applyMotionPreference(reducedMotionQuery.matches);
@@ -1235,6 +1577,25 @@ enterButton.addEventListener("click", enterExperience);
 playPauseButton.addEventListener("click", () => setPaused(!isPaused));
 testStoryButton.addEventListener("click", () => startStory("one", "development"));
 testStoryTwoButton.addEventListener("click", () => startStory("two", "development"));
+testStoryThreeButton.addEventListener("click", () => startStory("three", "development"));
+bellRopeTrigger.addEventListener("click", () => activateBellRope(false));
+bellRopeTrigger.addEventListener("pointerdown", beginBellRopePull);
+bellRopeTrigger.addEventListener("pointermove", moveBellRope);
+bellRopeTrigger.addEventListener("pointerup", endBellRopePull);
+bellRopeTrigger.addEventListener("pointercancel", () => cancelBellRopePull(false));
+bellRopeTrigger.addEventListener("lostpointercapture", () => {
+  if (bellRopeDrag) cancelBellRopePull(false);
+});
+bellRopeTrigger.addEventListener("keydown", (event) => {
+  if (event.key === "Escape") {
+    event.preventDefault();
+    cancelBellRopePull(true);
+    return;
+  }
+  if (event.key !== "Enter" && event.key !== " ") return;
+  event.preventDefault();
+  activateBellRope(true);
+});
 torchTrigger.addEventListener("pointerdown", beginTorchDrag);
 torchTrigger.addEventListener("pointermove", moveTorch);
 torchTrigger.addEventListener("pointerup", endTorchDrag);
@@ -1292,16 +1653,17 @@ cottageWindowTrigger.addEventListener("keydown", (event) => {
 
 experience.addEventListener("keydown", (event) => {
   if (event.key !== "Escape") return;
-  if (torchMode !== "selected" && cottageMode !== "ready") return;
+  if (torchMode !== "selected" && cottageMode !== "ready" && bellRopeMode !== "pulling") return;
   event.preventDefault();
   if (torchMode === "selected") cancelTorchSelection(true);
   if (cottageMode === "ready") cancelCottageReady(true);
+  if (bellRopeMode === "pulling") cancelBellRopePull(true);
 });
 
 function recordExplorationActivity(event) {
   if (isPaused || appState !== "exploring" || storyStartPending) return;
   const target = event.target;
-  if (target.closest?.("#torch-trigger, #lantern-trigger, #cottage-door-trigger, #cottage-window-trigger, #play-pause-button, #test-story-button, #test-story-two-button")) return;
+  if (target.closest?.("#torch-trigger, #lantern-trigger, #cottage-door-trigger, #cottage-window-trigger, #bell-rope-trigger, #play-pause-button, #test-story-button, #test-story-two-button, #test-story-three-button")) return;
   resetHintClock();
 }
 
@@ -1324,6 +1686,19 @@ storyTwoAudio.addEventListener("error", () => {
   if (activeStoryId !== "two") return;
   storyAudioUnavailable = true;
   if (activeState() === "story") reportAudioFailure("Story 2 continues visually, but its sound is unavailable.");
+});
+storyThreeAudio.addEventListener("error", () => {
+  if (activeStoryId !== "three") return;
+  storyAudioUnavailable = true;
+  if (activeState() === "story") reportAudioFailure("Story 3 continues visually, but its sound is unavailable.");
+});
+storyThreeUnlockAudio.addEventListener("ended", () => {
+  storyThreeUnlockAudioActive = false;
+});
+storyThreeUnlockAudio.addEventListener("error", () => {
+  storyThreeUnlockAudioUnavailable = true;
+  storyThreeUnlockAudioActive = false;
+  if (hasEntered && storyThreeUnlocked) reportAudioFailure("The tower still reveals its bell rope visually, but the unlock sound is unavailable.");
 });
 cottageKnockAudio.addEventListener("playing", () => {
   cottageKnockAudioUnavailable = false;

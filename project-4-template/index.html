@@ -349,6 +349,79 @@
             </g>
           </g>
 
+          <g id="story-three-layer" class="story-three-layer" aria-hidden="true">
+            <circle class="story-three-tower-glow" cx="309" cy="360" r="50" fill="url(#lantern-light)" filter="url(#soft-glow)" opacity="0"/>
+            <path class="story-three-tower-window" d="M302 357q7-13 14 0v29h-14z" fill="#ffd580" opacity="0"/>
+            <path class="story-three-moonbeam" d="M296 178 334 184 349 624 237 624z" fill="#e8d8b7" opacity="0"/>
+
+            <g class="story-three-ribbons" fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <path class="story-three-ribbon ribbon-one" pathLength="1" d="M211 548c13-28 33-17 14 10" stroke="#e1a24f" stroke-width="5"/>
+              <path class="story-three-ribbon ribbon-two" pathLength="1" d="M214 552c22-34 57-26 45 5" stroke="#c98749" stroke-width="4.5"/>
+              <path class="story-three-ribbon ribbon-three" pathLength="1" d="M217 548c30-33 68-25 73 9" stroke="#f0c36c" stroke-width="4"/>
+            </g>
+
+            <g class="story-three-carnival-position" transform="translate(-40 -78)">
+              <g class="story-three-carnival" opacity="0">
+              <path class="story-three-carnival-ground" d="M232 704q58-15 118 0" fill="none" stroke="#5d435f" stroke-width="2"/>
+              <g class="story-three-tent">
+                <path d="m238 688 24-47 26 47z" fill="#34243a" stroke="#9b684f" stroke-width="1.5"/>
+                <path d="m250 688 12-47 12 47z" fill="#a66848" opacity=".88"/>
+                <path d="M237 688h52l-4 15h-44z" fill="#17121c" stroke="#76516a" stroke-width="1.2"/>
+                <path d="M262 641v-11l13 5-13 5" fill="#e1a24f"/>
+                <path d="M258 703v-13q4-9 8 0v13z" fill="#dca250" opacity=".75"/>
+              </g>
+              <g class="story-three-wheel">
+                <circle cx="319" cy="669" r="25" fill="#17121c" stroke="#9b6b60" stroke-width="2"/>
+                <circle cx="319" cy="669" r="20" fill="none" stroke="#d0a25f" stroke-width="1.4"/>
+                <path d="M319 649v40M299 669h40M305 655l28 28M333 655l-28 28" stroke="#76516a" stroke-width="1.2"/>
+                <circle cx="319" cy="669" r="3.5" fill="#e1a24f"/>
+                <path d="m311 695-7 9M327 695l7 9" stroke="#17121c" stroke-width="4" stroke-linecap="round"/>
+              </g>
+              <g class="story-three-flags" fill="#dca250">
+                <path d="M235 632q56-18 112 0" fill="none" stroke="#76516a" stroke-width="1.3"/>
+                <path d="m250 629 9 1-6 8zM277 623l9 1-5 8zM306 622l9 2-6 7zM334 627l9 2-6 7z"/>
+              </g>
+              <g class="story-three-lights" fill="#ffd580">
+                <circle cx="244" cy="697" r="2"/><circle cx="277" cy="697" r="2"/>
+                <circle cx="303" cy="650" r="2"/><circle cx="335" cy="650" r="2"/>
+              </g>
+              </g>
+            </g>
+
+            <g class="story-three-invitation-position" transform="translate(-40 -78)">
+              <g class="story-three-invitation" opacity="0">
+              <path class="story-three-invitation-shadow" d="M227 631q65-9 130 0l-3 85q-62 9-124 0z" fill="#09070d" opacity=".62" transform="translate(0 5)"/>
+              <path class="story-three-invitation-card" d="M224 626q67-10 134 0l-3 85q-64 10-128 0z" fill="#dfc99d" stroke="#4c3543" stroke-width="3"/>
+              <path d="M232 636q59-7 117 0M233 701q58 7 114 0" fill="none" stroke="#8e674f" stroke-width="1.5" opacity=".8"/>
+              <path d="M235 641q56-6 111 0l-2 55q-54 6-108 0z" fill="none" stroke="#a9815d" stroke-width="1" stroke-dasharray="3 3" opacity=".65"/>
+              <text class="story-three-invitation-text" x="291" y="657" text-anchor="middle">
+                <tspan x="291" dy="0">Welcome to</tspan>
+                <tspan x="291" dy="14">Weenie World</tspan>
+              </text>
+              <circle cx="291" cy="691" r="11" fill="#8e5549" stroke="#4c3543" stroke-width="1.8"/>
+              <path class="story-three-crown-seal" d="m283 693 2-9 6 5 6-6 3 10q-8 5-17 0zm1 2q8 4 16 0" fill="none" stroke="#f1c66f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </g>
+            </g>
+          </g>
+
+          <g
+            id="bell-rope-trigger"
+            class="bell-rope-trigger"
+            role="button"
+            tabindex="-1"
+            aria-label="Tower bell rope. Pull once or activate to hear the King's invitation."
+            aria-describedby="story-three-interaction-status"
+            aria-disabled="true"
+          >
+            <g class="bell-rope-art ambient-motion" aria-hidden="true">
+              <path d="M309 481v62" fill="none" stroke="#17121c" stroke-width="6" stroke-linecap="round"/>
+              <path d="M309 482v61" fill="none" stroke="#9b684f" stroke-width="2" stroke-dasharray="3 3" stroke-linecap="round"/>
+              <path d="M299 543q10-13 20 0l-4 15h-12z" fill="#211824" stroke="#a97847" stroke-width="1.6"/>
+              <circle cx="309" cy="553" r="3" fill="#dca250"/>
+            </g>
+            <rect class="bell-rope-hit-area" x="281" y="468" width="56" height="104" rx="24" fill="transparent"/>
+          </g>
+
           <g id="foreground-layer" filter="url(#paper-shadow-near)" aria-hidden="true">
             <path d="M0 724c42-25 88-18 137 22 36 29 73 27 112-5 49-39 96-43 141-14v117H0z" fill="#0d0a10"/>
             <path d="M0 785c20-31 34-69 41-114l6-51c16 43 18 84 5 124 24-27 45-69 62-125 9 49 2 94-22 136M390 772c-23-29-39-71-47-125l-3-38c-17 45-19 88-5 130-25-23-49-60-71-110 1 52 17 97 49 136" fill="#17121c"/>
@@ -427,6 +500,9 @@
             <button class="test-story-button" id="test-story-two-button" type="button">
               Test Story 2 <span>Development only</span>
             </button>
+            <button class="test-story-button" id="test-story-three-button" type="button">
+              Test Story 3 <span>Development only</span>
+            </button>
           </div>
         </div>
 
@@ -434,6 +510,7 @@
         <p class="visually-hidden" id="playback-status" aria-live="polite"></p>
         <p class="visually-hidden" id="torch-interaction-status" aria-live="polite">The torch rests among the roots. Select it, then light the hanging lantern.</p>
         <p class="visually-hidden" id="cottage-interaction-status" aria-live="polite">The cottage door and window wait quietly in the forest.</p>
+        <p class="visually-hidden" id="story-three-interaction-status" aria-live="polite">A small bell rope waits beneath the distant tower.</p>
         <audio id="ambient-audio" preload="auto" loop aria-hidden="true">
           <source src="assets/audio/ambient-midnight.wav" type="audio/wav">
         </audio>
@@ -442,6 +519,12 @@
         </audio>
         <audio id="story-two-audio" preload="auto" aria-hidden="true">
           <source src="assets/audio/story-two-shadow.wav" type="audio/wav">
+        </audio>
+        <audio id="story-three-audio" preload="auto" aria-hidden="true">
+          <source src="assets/audio/story-three-invitation.wav" type="audio/wav">
+        </audio>
+        <audio id="story-three-unlock-audio" preload="auto" aria-hidden="true">
+          <source src="assets/audio/story-three-unlock.wav" type="audio/wav">
         </audio>
         <audio id="cottage-knock-audio" preload="auto" aria-hidden="true">
           <source src="assets/audio/cottage-knock.wav" type="audio/wav">

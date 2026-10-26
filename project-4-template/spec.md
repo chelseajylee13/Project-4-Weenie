@@ -161,6 +161,43 @@ Door and window feedback audio, temporary response animations, CSS ready-state m
 
 In reduced motion, cottage feedback must remain functionally obvious without relying on object travel. The quiet-window response and accepted knock use opacity-only changes with no rotation, translation, or scale. The ready window retains a high-opacity slow pulse plus a persistent dashed outline until activation, cancellation, or story start. Reduced motion must not change target enablement, pointer events, focusability, `idle` / `ready` state transitions, audio feedback, or story-start behavior.
 
+### Phase 2 Story 3 — approved audiovisual contract
+
+*The King's Midnight Invitation* is an approximately eight-second audiovisual story connected to the existing distant tower, moon, ancient tree, and King. Its future discovery control is a cut-paper bell rope beneath the tower: one downward pull starts the story, while click/tap and Enter/Space provide equivalent activation. The final control must be comfortably sized, visibly focused, resistant to accidental or duplicate starts, immediately responsive, and independently discoverable in any story order. The bell-rope interaction is excluded from the first animation-review checkpoint.
+
+The approved timeline is:
+
+1. From 0–2 seconds, one magical tower bell sounds and the tower window responds beneath a restrained moonbeam.
+2. From 2–4 seconds, the existing King appears briefly as an already-crowned presence and sends three magical paper ribbons into the clearing. The silhouette, eyes, face, and fully assembled crown appear together; Story 3 must not repeat Story 1's construction sequence.
+3. From 4–6.5 seconds, the ribbons unfold into a readable miniature cut-paper carnival containing a small tent, wheel, and flags without obscuring existing interactions or overcrowding a narrow portrait view.
+4. From 6.5–8 seconds, the carnival folds into a recognizable parchment invitation bearing the King's approved crown seal. The invitation holds briefly, then the complete story state resets.
+
+Story 3 uses original story-specific ribbon, carnival, invitation, tower-light, and moonbeam SVG shapes. It reuses the existing King, eyes, face, backlight, and crown nodes without duplicating or modifying their geometry. Story 1 retains its own animation builder and approved transformation. Story 3 must remain narratively complete if discovered before Story 1.
+
+The audio mix is an original eight-second stereo 16-bit/44.1 kHz WAV containing a magical tower bell, three paper-unfurl gestures, a subtle music-box/calliope motif, tiny light chimes, a gentle paper fold, and a crown-seal resolution. It follows the centralized story clock, ambient ducking, Pause/Resume, error handling, reset, and one-active-story rule while leaving all existing audio unchanged.
+
+Reduced motion preserves the bell response, already-crowned King, three staged ribbons, carnival reveal, and held invitation through lighting and opacity changes. It removes sweeping ribbon drawing, wheel rotation, vertical tent unfolding, bouncing recovery, and rapid light steps. The narrative order and full eight-second duration remain intact.
+
+The approved Story 3 hint text is:
+
+1. “The distant tower keeps its own midnight...”
+2. “A little bell waits beneath the moon.”
+3. “Pull the rope to hear the King's invitation.”
+
+All three stories will share the existing single hint card and one chronological exploration queue. Only one hint may be visible at a time. The queue pauses during global Pause, any partial selected/ready interaction, or an active story; it resumes without competing cards and restarts after story reset. Exact three-story thresholds are deferred until the bell-rope integration checkpoint and require Developer approval.
+
+The first implementation checkpoint contains the Story 3 artwork, original audio, standard/reduced eight-second timelines, shared controller ownership, and a third development-only Test button behind the existing localhost plus `?storyTest=1` gate. It does not contain the bell rope, public trigger, Story 3 runtime hints, or final story-independence behavior. Developer visual and listening approval is required before interaction integration.
+
+The Developer-requested invitation refinement keeps the story at eight seconds. The carnival compresses by 6.56 seconds; the enlarged parchment becomes fully visible at approximately 6.68 seconds; and the completed card holds until approximately 7.88 seconds before the final reset fade. The card uses a solid parchment fill, dark cut-paper shadow, three-pixel outer border, inner stitched border, centered two-line “Welcome to Weenie World” text, and the existing crown-seal language. Standard motion unfolds the card from a compressed paper shape; reduced motion uses the same readable final card with opacity rather than travel. The completed-card hold increases from approximately 0.84 to 1.20 seconds without changing total runtime or audio.
+
+The focused composition revision translates the carnival and invitation together by -40 x and -78 y viewBox units. This preserves their internal scale relationship, animation timing, invitation typography, crown seal, and fold transition while moving them from the lower-right edge toward the lower-middle. The three ribbon paths retain their original King-side origins and curve toward the repositioned carnival. No global scene, tower, King, earlier story beat, or existing interaction moves.
+
+The integrated revision extends Story 3 to 9.5 seconds. The carnival remains readable before folding across a slower 0.76-second transition. The invitation reaches its centered final state at approximately 7.79 seconds, at 2.15 times its authored size, holds at full opacity until approximately 9.12 seconds, and then fades gracefully for approximately 0.38 seconds. Standard motion moves and scales the parchment from the carnival staging area; reduced motion presents the same centered, enlarged result without requiring a sweeping travel animation. The original audio builder now renders a matching 9.5-second file with a quiet sustained final chord.
+
+The production Story 3 trigger is one visible cut-paper rope below the distant tower with a 56-by-104-viewBox-unit hit region. A pointer may pull it downward and release; a tap/click, Enter, or Space performs the equivalent one-pull activation. It exposes visible hover and focus treatment, announces its action through the Story 3 live region, starts through the centralized one-story lock, and restores keyboard focus after completion. Story 3's approved hints join the single shared hint queue at 15, 27, and 39 seconds. The development button remains restricted to localhost plus `?storyTest=1`.
+
+In the normal experience the bell rope begins with `visibility: hidden`, zero opacity, no pointer events, `tabindex="-1"`, `aria-hidden="true"`, and `aria-disabled="true"`. The controller keeps an in-memory set of successfully completed prerequisite story identities. Only the guarded master-animation completion path may add Story 1 or Story 2; trigger acceptance, Pause, an interrupted run, or a cancelled animation cannot grant progress. When and only when both identities exist, a one-time unlock sets Story 3 available, gives the tower an 1.8-second standard- or reduced-motion light response, plays its dedicated original unlock bell, reveals the rope, and resets the hint queue with Story 3's messages included. The unlocked flag remains true through prerequisite replays and resets only on page reload. The localhost development control may continue to bypass this production gate for isolated animation testing.
+
 ## Saving the transcript
 
 When directed, save the complete conversation as `transcripts/spec-YYYY-MM-DD_HHMMSS.md`, label messages `Developer` and `Agent`, and confirm the path.

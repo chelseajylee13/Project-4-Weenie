@@ -656,7 +656,7 @@ All required Checkpoint 8 acceptance criteria now have direct Developer results 
 - The successful 7,026,271-byte Pages artifact was downloaded independently and contains `index.html`, `app.js`, `styles.css`, all three Story 2 WAV files, and the preserved ambient and Story 1 WAV files. The Story 2 asset SHA-256 values match the local deterministic build: `48D6E437...BEB73` for the story mix, `F2CA1386...C0A5` for the knock, and `93D4FE8E...211D` for the window response.
 - This is deployment and source/runtime-asset verification, not a rendered public-browser, listening, assistive-technology, or physical-smartphone retest. No new physical-device result is claimed.
 
-### [ ] Phase 2 Checkpoint 9: Specify and storyboard Story 3
+### [x] Phase 2 Checkpoint 9: Specify and storyboard Story 3
 
 - Turn *The King's Midnight Invitation* into an approved 5–10-second timeline in which the King conjures a miniature magical carnival.
 - Approve how the existing King presence, tower/moon, and carnival elements connect; approve the trigger, progress language, hints, reduced-motion telling, and audio plan.
@@ -674,17 +674,100 @@ All required Checkpoint 8 acceptance criteria now have direct Developer results 
 - Shared-system contract: touch, mouse, pen, Enter/Space, visible focus, Escape cancellation where applicable, centralized Pause/Resume, one active story, reset, replay, independent story discovery, and no development control outside localhost plus `?storyTest=1`.
 - Decisions required before coding: approve or revise the bell-rope trigger, the King's degree of visibility, the miniature carnival elements, the fold-into-invitation ending, the audio mood, and the three hint lines.
 
-### [ ] Phase 2 Checkpoint 10: Implement and verify Story 3
+**Developer approval and refinements:**
+
+- Approved one cut-paper bell rope beneath the distant tower, with one pull plus click/tap and Enter/Space equivalents, immediate audiovisual feedback, mobile comfort, and duplicate-start prevention.
+- Approved a brief already-crowned King using the existing artwork. Story 3 must not replay Story 1's silhouette-to-eyes-to-crown construction and must work independently before Story 1.
+- Approved the eight-second bell/tower, three ribbons, miniature tent-wheel-flags carnival, and crown-sealed parchment invitation timeline. Hold the invitation briefly before reset and protect narrow-screen readability.
+- Approved original bell, paper, restrained music-box, light-chime, and fold audio while preserving all earlier audio.
+- Approved revised hints: “The distant tower keeps its own midnight...”, “A little bell waits beneath the moon.”, and “Pull the rope to hear the King's invitation.”
+- Checkpoint 9 is complete. The animation-review implementation may begin, but the final bell-rope interaction remains excluded until the Developer approves the audiovisual story.
+
+### [x] Phase 2 Checkpoint 10: Implement and verify Story 3
 
 - Build and approve the audiovisual timeline before adding its final discoverable trigger.
 - Integrate feedback, hints, replay/reset, keyboard access, interaction locking, shared Play/Pause, and reduced motion.
 - Verify all three stories can be discovered and replayed independently without duplicated audio, stale artwork, conflicting timers, or state leakage.
+
+**Audiovisual timeline implementation evidence — awaiting Developer review:**
+
+- Added an original Story 3 SVG layer containing only tower response light, moonbeam, three paper ribbons, a compact tent/wheel/flags carnival, small carnival lights, parchment invitation, and crown-seal artwork. No bell-rope control or public Story 3 trigger exists yet.
+- Reused the existing King silhouette, eyes, face, backlight, and assembled crown as shared animation targets. Story 3 reveals all components together from approximately 2–4 seconds and does not call or alter Story 1's staged animation builder.
+- Added a third localhost-only `Test Story 3` control under the unchanged hostname plus `?storyTest=1` gate. Extended the centralized story identity, audio owner, pause/resume, reset, replay, status, and focus-return routing to Story 3.
+- Added deterministic builder `scripts/build-story-three-audio.mjs` and generated `assets/audio/story-three-invitation.wav`, an eight-second stereo 16-bit/44.1 kHz original mix. The Pages manifest is prepared for the eventual approved deployment, but no commit or deployment is authorized at this checkpoint.
+- Proposed shared hints: retain one card and one chronological queue, show only one hint at a time, pause the same clock during partial interactions/stories/global Pause, and restart after reset. Story 3 text and exact thresholds remain absent from runtime until bell-rope integration approval.
+- Reduced motion keeps all four story beats through simultaneous King/crown opacity, staged ribbons, a static carnival wheel/tent reveal, calmer lighting, and a held invitation. Standard motion adds restrained ribbon drawing, tent unfolding, wheel turn, and two-step carnival lights.
+- Initial Agent checks: the audio builder produced an eight-second file with reported peak 0.195; `node --check` passed for the app and builder; CSS braces balance at 188/188; and `git diff --check` reported only line-ending notices. Rendered narrative, audio mix, pause/resume, replay, and reduced-motion appearance remain pending runtime checks and Developer review.
+- Agent Chrome reduced-motion runtime check at 390×844: the localhost debug page entered exploration, retained working Story 1 and Story 2 paths, exposed the Story 3 button only with `?storyTest=1`, started Story 3 once, paused and resumed it, returned to exploration after eight seconds, replayed it, and reset again. The complete existing Story 1 and Story 2 Pause/Resume/reset/replay lifecycle also passed in the same run.
+- Agent Chrome standard-motion check at 390×844: Story 1 fallback, Story 2 door/window, and the localhost-only Story 3 timeline each entered the single global story state without assertion failures. The non-local `file:///` path kept Story 3 classified as localhost-only while existing stories remained functional.
+- Verification boundary: these automated checks establish controller state, input delivery, eight-second completion, Pause/Resume, reset, replay, and development gating. They do not establish that the crowned-King beat, ribbons, carnival, invitation, or audio mix read successfully to a viewer. Checkpoint 10 remains open for Developer visual and listening review before any bell-rope implementation, commit, or deployment.
+
+**Focused invitation-ending revision — awaiting Developer review:**
+
+- Actual Developer review: Story 3 animation and audio work well overall, but the final invitation is too thin or fleeting to read clearly on a phone. The requested change is limited to a more apparent solid card, a longer hold, and the text “Welcome to Weenie World.”
+- Enlarged the invitation from a light 106-by-approximately-78-unit parchment to a stronger approximately 134-by-95-unit cut-paper group. Added an opaque parchment body, offset dark paper shadow, three-unit outline, interior stitched border, two centered text lines, and the approved crown seal.
+- Kept the total timeline at eight seconds. The carnival now compresses by approximately 6.56 seconds; the invitation becomes fully visible at approximately 6.68 seconds and holds until approximately 7.88 seconds. The completed-card hold increases from about 0.84 to 1.20 seconds, with only the final 0.12 seconds used for reset fade.
+- Standard motion retains one restrained compressed-paper unfold; reduced motion displays the same enlarged text-bearing card through opacity and holds it on the same timing. No earlier story beat, audio cue, shared state, Story 1, or Story 2 behavior was changed.
+- Agent Chrome sampling at approximately 7.2 seconds passed in both reduced and standard motion at 390×844. Each run found exact rendered text `Welcome to Weenie World`, invitation opacity above 0.9, a card wider than 120 CSS pixels fully inside the portrait viewport, successful Pause/Resume, completion reset, replay, and second reset. The same runs completed the existing Story 1 and Story 2 lifecycle regressions without assertions.
+- Verification boundary: Chrome confirms rendered text content, bounds, opacity, timing state, and controller behavior, but the Developer must still judge legibility, visual solidity, magical tone, and whether the invitation hold feels long enough. Checkpoint 10 remains open.
+
+**Focused Story 3 composition revision — awaiting Developer review:**
+
+- Actual Developer review: the miniature carnival and final invitation appear too low and too close to the bottom corner, reducing phone visibility. Preserve all approved content and adjust only their framing.
+- Moved both the carnival and invitation 40 SVG viewBox units left and 78 units upward. Their scale, internal spacing, artwork, invitation text, crown seal, timing, and audio remain unchanged. Redirected the three ribbon curves from their existing King origins toward the carnival's new lower-middle position.
+- Extended the Chrome lifecycle diagnostic to sample the carnival near 5.2 seconds and assert high opacity, full viewport containment, and a bottom edge above y=650. The invitation sample retains its text/opacity/width checks and now also requires a bottom edge above y=650 and a center no farther right than 70% of the viewport.
+- Agent source checks after the positional revision: `node --check` passed for `app.js`, the Story 3 audio builder, and the Chrome diagnostic; `git diff --check` reported no whitespace errors (only the repository's existing line-ending notices). Two attempts to run the 390×844 reduced-motion Chrome lifecycle stopped before page navigation because the DevTools `Page.enable` command timed out after five seconds. This is a test-harness startup failure, not evidence that the experience passed or failed; rendered placement, standard/reduced motion, and visual readability remain pending Developer review.
+
+**Extended ending and production bell-rope integration — awaiting Developer review:**
+
+- Actual Developer review: the carnival-to-invitation ending remains too short, the invitation needs to move to the center and grow into the final payoff, and Story 3 must be testable through its real exploration trigger rather than only the development control.
+- Extended Story 3 from eight to 9.5 seconds. The centered invitation becomes fully visible at approximately 7.79 seconds, holds at full opacity for approximately 1.33 seconds, then fades over approximately 0.38 seconds. It grows to 2.15 times the authored card size—approximately 288 viewBox units wide, or about 74% of the 390-unit portrait stage—and retains the exact “Welcome to Weenie World” text.
+- Added the approved cut-paper bell rope beneath the distant tower to normal exploration. Its 56-by-104-viewBox-unit hit target supports downward pointer pull/release, tap/click, Enter, and Space; includes hover/focus/pull feedback and a live status; starts Story 3 through the existing atomic story lock; and returns keyboard focus after reset. The debug button remains gated behind localhost plus `?storyTest=1`.
+- Added Story 3's approved hints to the one-card queue at 15, 27, and 39 seconds. Story 1 remains at 12, 24, and 36 seconds and Story 2 remains at 18, 30, and 42 seconds, preventing simultaneous messages.
+- Regenerated the original Story 3 WAV at 9.5 seconds and extended its quiet resolving chord beneath the longer invitation hold. No Story 1 or Story 2 asset was rebuilt.
+- Agent source checks passed for `app.js`, the Story 3 audio builder, and the updated Chrome diagnostic. The audio builder reported 9.5 seconds, stereo 44.1 kHz, and peak 0.195; `git diff --check` found no whitespace errors beyond line-ending notices. Two Chrome diagnostic launches stopped before navigation at a DevTools `Page.enable` timeout, including one isolated random-port attempt. Accordingly, no rendered pointer, keyboard, reduced-motion, timing, replay, or cross-story regression is marked passed by the Agent. Checkpoint 10 remains open for Developer testing.
+
+**Story 3 prerequisite progression correction — awaiting Developer verification:**
+
+- Actual Developer requirement: Story 3 must remain hidden and inaccessible until both Story 1 and Story 2 complete successfully in either order. Starts, pauses, cancellations, or interrupted playback must not grant progress; unlock is session-only and permanent until reload; locked Story 3 hints must not appear.
+- Investigation result: the production bell rope was previously enabled immediately and all three Story 3 hints were present in the initial hint queue. The required progression gate had not been implemented.
+- Implemented an in-memory completion set updated only inside the guarded `finishStory()` callback after the active master animation resolves. One prerequisite leaves the rope hidden, non-interactive, `tabindex=-1`, `aria-hidden=true`, and disabled. The second distinct prerequisite completion calls a one-time unlock; later Story 1/2 replays cannot clear it, and reload recreates the initial locked state.
+- Unlock feedback uses the existing tower glow/window nodes plus a new original 1.8-second `story-three-unlock.wav` at restrained volume. Standard motion adds restrained scale to the light; reduced motion uses opacity only. No King node or story timeline is duplicated.
+- Story 3 hints now live outside the initial queue and are merged at 15, 27, and 39 seconds only after unlock. The existing one-card presentation remains unchanged.
+- Source-level Agent checks: JavaScript syntax passes for the application, Story 3 audio builder, and diagnostic; the builder reports the 9.5-second story mix and 1.8-second unlock cue as stereo 44.1 kHz files with peak 0.195; exact invitation text remains in the SVG; and source counts retain one King silhouette, one eyes group, and one face-details group. The Chrome lifecycle diagnostic was expanded to assert initial lock, one-story lock, two-story unlock, real bell activation, centered invitation, Pause/Resume, reset, and replay, but its launch again stopped before navigation at the environment's existing `Page.enable` timeout. None of those runtime assertions is therefore marked passed. Checkpoint 10 remains open.
+
+**Developer verification — passed; Checkpoint 10 complete:**
+
+- Story 3 bell rope hidden on initial forest entry: Passed.
+- Story 1 completion alone does not unlock Story 3: Passed.
+- Story 1 followed by Story 2 reveals the bell rope with tower animation and sound: Passed.
+- After refresh, Story 2 followed by Story 1 also unlocks Story 3: Passed.
+- Replaying Story 1 or Story 2 after unlock does not relock Story 3: Passed.
+- Refresh resets progression: Passed.
+- Bell-rope pull and tap interaction: Passed.
+- Complete 9.5-second Story 3 playback without interruption: Passed.
+- Invitation grows toward the center and clearly displays “Welcome to Weenie World”: Passed.
+- Invitation remains readable long enough and fades smoothly: Passed.
+- Story 3 reset and replay: Passed.
+- Shared Play/Pause during tower unlock and Story 3: Passed.
+- Reduced motion preserves the complete interaction and invitation: Passed.
+- Bell-rope Enter/Space operation: Passed.
+- Story 1 and Story 2 regression behavior: Passed.
+- These are the Developer's direct runtime results, separate from the Agent's source checks and failed-to-launch Chrome diagnostic. No physical-smartphone verification of the new public deployment is claimed.
+- All required Checkpoint 10 acceptance criteria now have reported passing Developer evidence. Checkpoint 10 is complete.
+
+**Checkpoint 10 delivery — pending:**
+
+- Commit the approved Story 3 implementation, original audio, documentation, deployment manifest, diagnostic, and saved accessible transcript.
+- Push and verify the matching GitHub Pages deployment and required Story 1–3 public assets.
+- Deployment verification does not constitute physical-smartphone testing.
 
 ### [ ] Phase 2 Checkpoint 11: Complete-app peer playtest and revision
 
 - Deploy the three-story build and repeat unassisted smartphone playtesting with peers.
 - Observe discovery order, time to discover each trigger, hint usefulness, story comprehension, replay behavior, comfort with the spooky tone, and interest in exploring further.
 - Prioritize revisions by frequency and impact, obtain Developer approval for consequential changes, then implement and retest one focused revision group at a time.
+- Entry condition: begin after the Story 3 commit and Pages deployment are verified. Keep Developer, peer, and Agent evidence separate; cover both prerequisite orders, unlock signaling, all story interactions, replay, shared Pause/Resume, reduced motion, keyboard access, hints, narrow layouts, and audio ownership. Do not begin the debrief or final ZIP packaging during this checkpoint.
 
 ### [ ] Phase 2 Checkpoint 12: Final audit, deployment, and debrief
 
