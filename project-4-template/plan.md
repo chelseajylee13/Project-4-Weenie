@@ -646,7 +646,15 @@ The Developer recorded no observations or problems. No phone model, mobile brows
 - Basic interaction-start checks also passed over `file:///` in all four matrix cases. The full lifecycle was run over HTTP, the deployment-like path, rather than duplicated over `file:///`.
 - `node --check` passed for the Chrome diagnostic. These Agent results remained separate from the Developer's later reduced- and normal-motion passes.
 
-All required Checkpoint 8 acceptance criteria now have direct Developer results or the documented source-level evidence appropriate to the criterion. Checkpoint 8 is complete. The earlier failed reduced-motion result is retained above as consequential revision evidence rather than overwritten. The new public deployment still requires source/runtime verification and is not recorded as physically smartphone-tested unless the Developer explicitly performs that separate test. Story 3 implementation remains excluded until its creative direction is approved.
+All required Checkpoint 8 acceptance criteria now have direct Developer results or the documented source-level evidence appropriate to the criterion. Checkpoint 8 is complete. The earlier failed reduced-motion result is retained above as consequential revision evidence rather than overwritten. Public deployment evidence is recorded below and is not treated as physical-smartphone testing. Story 3 implementation remains excluded until its creative direction is approved.
+
+**Checkpoint 8 commit and deployment evidence:**
+
+- Commit `08005bd` (`Complete Story 2 cottage interaction`) contains the approved Story 2 implementation, responsive short-viewport correction, original audio and builder, deployment manifest, diagnostic harnesses, documentation, and accessible conversation transcripts. It was pushed to `origin/main`.
+- GitHub Pages runs `40366785574` and `40366785663` both completed successfully for exact head SHA `08005bd8fc02d1d6748aa534bc561a981538f2ca`.
+- Public HTTPS checks returned HTTP 200 for the page (30,949 bytes), `app.js` (55,770 bytes), and `story-two-shadow.wav` (1,411,244 bytes) with the new deployment timestamp. GitHub's CDN intermittently reset a later bulk-download request, so no unsupported claim is made that every public checksum was fetched individually.
+- The successful 7,026,271-byte Pages artifact was downloaded independently and contains `index.html`, `app.js`, `styles.css`, all three Story 2 WAV files, and the preserved ambient and Story 1 WAV files. The Story 2 asset SHA-256 values match the local deterministic build: `48D6E437...BEB73` for the story mix, `F2CA1386...C0A5` for the knock, and `93D4FE8E...211D` for the window response.
+- This is deployment and source/runtime-asset verification, not a rendered public-browser, listening, assistive-technology, or physical-smartphone retest. No new physical-device result is claimed.
 
 ### [ ] Phase 2 Checkpoint 9: Specify and storyboard Story 3
 
@@ -654,6 +662,17 @@ All required Checkpoint 8 acceptance criteria now have direct Developer results 
 - Approve how the existing King presence, tower/moon, and carnival elements connect; approve the trigger, progress language, hints, reduced-motion telling, and audio plan.
 - Protect visual clarity on narrow phones and musical space across all three stories.
 - Do not code until the storyboard and acceptance criteria are approved.
+
+**Creative proposal awaiting Developer approval — no implementation:**
+
+- Interaction concept: add a single cut-paper bell rope beneath the existing distant tower. A pointer user pulls it downward once; clicking/tapping the rope or pressing Enter/Space provides the equivalent non-drag activation. The rope returns after an unsuccessful short pull, gives immediate bell/tower-window feedback on success, and remains a comfortably sized target without moving the tower or moon.
+- Proposed approximately eight-second narrative: 0–2 seconds, the midnight bell sounds and the tower window answers beneath a restrained moonbeam; 2–4 seconds, the existing single King presence and crown emerge in the ancient tree and send three amber invitation ribbons into the clearing; 4–6.5 seconds, the ribbons unfold into a miniature cut-paper carnival of a tent, small wheel, and flags among the roots; 6.5–8 seconds, the carnival lights blink once and fold into a crown-sealed invitation, ending deliberately before the scene resets.
+- Visual constraint: reuse the existing King silhouette, eyes, face, crown language, tower, moon, palette, and paper texture. Add only story-specific invitation ribbons and miniature carnival silhouettes. Do not duplicate the King or obscure the lantern, cottage, torch, or Story 2 path.
+- Proposed audio: original restrained tower bell, paper-unfurl accents, a brief playful music-box/calliope motif, tiny light chimes, and a soft paper-fold resolve, mixed beneath the existing ambience without changing Story 1 or Story 2 audio.
+- Proposed hints: “The distant tower keeps its own midnight...”; “A small bell rope waits beneath the moon.”; “Pull once, and listen for an invitation.” Hint thresholds and interleaving with the existing six messages require Developer approval before implementation.
+- Reduced motion retains the bell cause, King response, carnival reveal, and invitation ending through opacity, lighting, and staged paper states; it removes sweeping ribbon travel, wheel rotation, bouncing rope recovery, and rapid light sequences. Direct pointer movement remains under User control.
+- Shared-system contract: touch, mouse, pen, Enter/Space, visible focus, Escape cancellation where applicable, centralized Pause/Resume, one active story, reset, replay, independent story discovery, and no development control outside localhost plus `?storyTest=1`.
+- Decisions required before coding: approve or revise the bell-rope trigger, the King's degree of visibility, the miniature carnival elements, the fold-into-invitation ending, the audio mood, and the three hint lines.
 
 ### [ ] Phase 2 Checkpoint 10: Implement and verify Story 3
 
