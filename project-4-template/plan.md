@@ -512,52 +512,141 @@ The approved Story 1 revision satisfies its documented acceptance criteria using
 - Agent HTTPS verification at `https://chelseajylee13.github.io/Project-4-Weenie/` returned HTTP 200 for the page, JavaScript, stylesheet, and new 23,483-byte ignition MP3. The deployed HTML includes the torch and ignition-audio elements, the deployed script includes the ignition controller and 8,000-millisecond Story 1 duration, and the deployed stylesheet includes the torch rules.
 - This confirms publication and deployed source markers, not a new rendered, listening, assistive-technology, physical-device, or peer-test result. Follow-up public peer testing remains pending.
 
-### [ ] Phase 2 Checkpoint 7: Specify and storyboard Story 2
+### [x] Phase 2 Checkpoint 7: Specify and storyboard Story 2
 
-**Proposed creative concept — awaiting Developer approval:**
+**Developer-approved concept and interaction:**
 
-*The Shadow That Escaped* begins at the existing crooked cottage. A visitor knocks once on a new cut-paper ring mounted on the cottage door. The nearby window answers with a visible paper-curtain movement and a soft glow pulse. Activating that answering window releases the cottage's own playful shadow for an approximately eight-second escape-and-return story. This two-object `door → window` interaction communicates progress without repeating Story 1's drag mechanic or the former ambiguous repeated-tap count.
+- Use the existing crooked cottage. The User knocks once on a recognizable door ring, receives immediate audiovisual feedback from the window, and activates that responding window to begin Story 2.
+- Avoid an unexplained repeated-tap count. Give both cottage objects comfortable targets, clear visual identity, touch/mouse/keyboard support, non-color-only progress, and accessible status feedback.
+- Preserve partial trigger progress during unrelated exploration. Starting either story, rather than merely exploring its area, clears the other story's incomplete progress so stories cannot overlap.
 
-**Proposed interaction flow:**
+**Developer-approved revised approximately eight-second storyboard:**
 
-1. During exploration, the door ring has a subtle occasional sway and a comfortable invisible target. It is visually quieter than the torch and lantern so the tree remains the primary focal point.
-2. Touch, click, Enter, or Space on the door produces one wooden knock, a small paper-door tremor, and an announced “The cottage answers at the window” state. The window curtain shifts open and stays visibly changed, providing non-color-only progress.
-3. Touch, click, Enter, or Space on the answering window produces a short glassy/papery response and starts Story 2 exactly once. Activating the window before the knock gives a restrained closed-window response but does not advance.
-4. Escape while the cottage is primed returns its door and window to their exploratory state. Starting either story atomically clears incomplete interaction state from the other story so no stale selection or audio remains.
-5. Story completion restores the cottage, door ring, and window; restarts the shared hint clock; unlocks both stories; and returns keyboard focus to the door only when Story 2 began by keyboard.
+- **0–2 seconds:** The shadow peeks out, checks whether anyone is watching, and sneaks outside.
+- **2–4.5 seconds:** The shadow makes exactly two readable playful hops toward the tree roots and glances back.
+- **4.5–6 seconds:** The window suddenly brightens first; the shadow then freezes, turns toward it, and widens its eyes in surprise.
+- **6–8 seconds:** The caught shadow deliberately compresses into a paper ribbon and returns through the cottage window.
 
-**Proposed approximately eight-second storyboard:**
+The character must match the approved cut-paper shadow-puppet aesthetic and feel mischievous, playful, and mysterious rather than frightening. Reduced motion retains all four beats through staged poses, opacity, and lighting instead of long travel.
 
-- **Beginning, 0.0–2.0 seconds:** The activated window brightens, then its light briefly gutters. A single flattened cottage-shadow shape peels from beneath the roofline and lands on the midground bank with a soft paper snap.
-- **Middle, 2.0–5.6 seconds:** The escaped shadow scampers in two playful bounds toward the tree roots, stretches tall as if delighted by its freedom, then notices the cottage window pulsing like a beacon. The existing King artwork remains hidden and untouched.
-- **End, 5.6–8.0 seconds:** The shadow turns, folds itself into a small paper ribbon, and slips back through the window. The curtain settles, the window gives one contented warm blink, and a tiny chimney puff curls into a brief wave before all Story 2 effects dissolve back to exploration.
+**Developer-approved original audio direction:**
 
-Reduced motion would replace the long scamper and stretch with three staged opacity/shape poses: detached beside the cottage, paused near the roots, and returned at the window. The same beginning, decision, and ending remain readable without travel-heavy motion.
+- Create subtle original wooden-knock, window-response, shadow-movement, paper-folding, and gentle resolving-chime cues.
+- Preserve the ambient soundtrack and Story 1 audio. Story 2 uses the shared audio clock, ambient ducking, Pause/Resume, and one-player-per-cue behavior.
 
-**Proposed sound direction:**
-
-- Create original project audio rather than introducing another external asset: one dry wooden knock for the door, one soft paper-and-glass response for the window, and an approximately eight-second story mix built from papery footfalls, a restrained airy scurry, a returning fold, and a quiet resolving chime.
-- Keep the mix lighter and slightly more playful than Story 1, with enough headroom to remain clear over the unchanged ambient loop. All Story 2 sounds use the centralized pause/resume and one-player-per-cue rules.
-
-**Proposed progressive hints at the shared inactivity thresholds:**
+**Developer-approved hints:**
 
 1. “The crooked cottage seems to be listening...”
-2. “Its little door has not heard a visitor in years.”
-3. “Knock once, then watch for an answer.”
+2. “Perhaps someone is waiting behind the door.”
+3. “Give the door a knock, then follow the light.”
 
-**Proposed coexistence and acceptance boundaries:**
+Checkpoint 7 is complete. The detailed contract is recorded in `spec.md`; implementation begins with a development-only audiovisual timeline and excludes final door/window interaction code until the Developer reviews the animation.
 
-- Story 1 and Story 2 remain independently replayable, but the global story lock permits only one story timeline at a time.
-- The torch and cottage can both be discovered during exploration. Beginning one interaction cancels only the other story's temporary selected or primed state; completed stories do not permanently disable either trigger.
-- Story 2 must pass touch, mouse, Enter, Space, visible-focus, unsuccessful-window, Escape-cancel, Pause/Resume, reduced-motion, replay/reset, repeated-story, and Story 1 regression checks.
-- Verify an effective target of at least 48 CSS pixels for both cottage controls on supported phone sizes and preserve the tree/lantern focal hierarchy and current portrait framing.
-- Do not create Story 2 artwork, audio, or code until the Developer approves or revises this proposal.
-
-### [ ] Phase 2 Checkpoint 8: Implement and verify Story 2
+### [x] Phase 2 Checkpoint 8: Implement and verify Story 2
 
 - First build the coordinated audiovisual timeline behind a development-only test control.
 - After the story is approved, add its discoverable interaction, feedback, hints, replay/reset, keyboard behavior, and shared state-controller integration.
 - Verify timing, audio synchronization, pause/resume, interaction locking, reduced motion, repeated replay, and regression safety for Story 1 before deployment.
+
+**Audiovisual timeline implementation evidence — awaiting Developer review:**
+
+- Added an original SVG Story 2 layer without modifying the cottage or Story 1 artwork. It contains one small mischievous shadow, a separate returning paper-ribbon pose, cottage-window curtain and glow overlays, a restrained cottage haze, and small window spark shapes.
+- Implemented the approved 0–2, 2–5, 5–6.5, and 6.5–8-second beats with the shared Web Animations clock. The standard-motion version uses four playful bounds and a returning ribbon; reduced motion replaces long travel with staged cottage, root, and return poses while preserving the same narrative order.
+- Extended the existing centralized story owner so exactly one Story 1 or Story 2 timeline and audio element can be active. Shared Pause/Resume, ambient ducking, animation suspension, audio resynchronization, completion cleanup, and development-button focus restoration now use the active story identity.
+- Added a second development-only `Test Story 2` button under the existing localhost plus `?storyTest=1` gate. No cottage door/window controls, public Story 2 trigger, or Story 2 hint routing have been added.
+- Added deterministic original-audio builder `scripts/build-story-two-audio.mjs`. It produces `cottage-knock.wav` (0.72 seconds), `cottage-window-response.wav` (1.35 seconds), and `story-two-shadow.wav` (8 seconds), all stereo 16-bit/44.1 kHz PCM. The first two files are prepared but remain disconnected until interaction integration.
+- Added all three Story 2 WAV files to the future Pages artifact manifest without committing or deploying this checkpoint.
+- Agent syntax check: `node --check` passed for `app.js` and all four audio-build scripts.
+- Agent audio check: the Story 2 builder completed successfully and the generated WAV headers report the documented durations, 44.1 kHz sample rate, two channels, and 16-bit PCM. File sizes are 127,052 bytes for the knock, 238,184 bytes for the window response, and 1,411,244 bytes for the story mix.
+- Agent preservation check: the Git object hashes for `ambient-midnight.wav` and `story-one-crown.wav` still match `HEAD`. CSS braces balance at 140/140.
+- Agent source check: all 56 document IDs are unique; the localhost and `storyTest=1` development gates remain present; there is one centralized entry into global story state; the King silhouette, eye path, and face-detail group remain single instances; no final cottage door/window trigger IDs exist; and the future Pages manifest contains all three Story 2 assets.
+- Agent whitespace check: `git diff --check` passed apart from informational LF-to-CRLF notices.
+- Verification limit: a combined source/server audit first failed because its inline JavaScript was parsed by PowerShell. The corrected source audit passed, but its background local HTTP listener could not be reached. Following the two-attempt project rule, local HTTP serving was not retried and is not claimed. No rendered animation, listening, elapsed-time playback, Pause/Resume, reduced-motion, replay, or Story 1 interaction result is claimed by the Agent.
+
+**Developer review and focused narrative revision:**
+
+- Actual Developer observation: the first standalone animation is visually consistent with the project, but its story feels unclear to a first-time viewer because the shadow mainly moves away from the cottage and returns without an obvious reason.
+- Approved interpretation and revision: make the window visibly catch the mischievous shadow and call it home. Preserve the runtime, audio direction, shared systems, Story 1, cottage, and forest composition; revise only Story 2's audiovisual narrative.
+
+**Focused narrative revision implementation evidence — awaiting Developer review:**
+
+- Enlarged and clarified the shadow silhouette with separate head and eye artwork. The head checks left and right during the peek, glances back after the first hop, and turns toward the cottage only after the window catches it.
+- Replaced the earlier travel with exactly two standard-motion hops and three reduced-motion staged positions. The shadow holds at the roots before the window event instead of drifting continuously.
+- Moved the sudden window flare to 4.5 seconds and delayed the shadow's frozen turn and widened-eye reaction until after that flare, establishing a readable cause followed by reaction.
+- Moved the flattening and ribbon transformation to 6 seconds. The ribbon now follows a longer, deliberate return path and reaches the window before the final warm blink and fade.
+- Resynchronized the original eight-second Story 2 mix to two hop cues, a 4.5-second window call, a following surprise accent, a 6-second paper fold, the returning rustle, and the gentle resolving chime. The knock and separate window-response trigger files remain unchanged and disconnected.
+- Agent checks after the revision: `node --check` passed for the application and Story 2 audio builder; rebuilding produced the same Story 2 WAV SHA-256 (`48D6E4377B6623D957EF130D9B90ED20C4B6160865AE6E66E6287F27E54BEB73`); WAV metadata remains 8.00 seconds, 44.1 kHz, stereo, and 16-bit; CSS braces balance at 141/141; the ambient and Story 1 WAV Git hashes still match `HEAD`; and `git diff --check` passed apart from line-ending notices.
+- Verification boundary: the Agent did not render, watch, or listen to the revised story and does not claim the new narrative reads successfully. That judgment, Pause/Resume, reduced-motion appearance, repeated replay, and Story 1 interaction regression remain Developer tests.
+- No cottage interaction control, Story 2 hint routing, or final trigger behavior was added. Checkpoint 8 remains open pending another Developer visual and listening review.
+
+**Full door-to-window interaction implementation evidence — awaiting Developer testing:**
+
+- Added a visible cut-paper door ring over the existing cottage without changing the cottage artwork or composition. Its 66-by-101-unit SVG hit area and the window's 63-by-75-unit hit area exceed the 48-CSS-pixel target at the supported narrow portrait widths.
+- Added accessible SVG button semantics, dynamic labels, visible focus, hover/touch feedback, Enter/Space operation, and Escape cancellation for the door and window. The quiet window remains focusable and gives a restrained audiovisual no-progress response when used before the knock.
+- Added a two-state `idle` / `ready` cottage controller. One accepted knock disables the door, plays the original wooden knock and window-response cues, moves the door ring and curtain, outlines the window, reveals a paper spark, announces that the window is ready, and moves focus only for keyboard input.
+- Activating the ready window uses the existing centralized story-start guard to launch Story 2 once. Starting Story 2 clears incomplete torch progress; starting Story 1 clears cottage progress. Merely exploring, selecting the torch, or inspecting the cottage preserves both stories' partial progress.
+- Added both cottage feedback audio elements to shared Pause/Resume, error handling, story-start cleanup, completion reset, and replay. CSS waiting/ready effects and Web Animations feedback are also paused through the existing experience-wide animation controller.
+- Interleaved the approved cottage hints at 18, 30, and 42 seconds while preserving Story 1's 12-, 24-, and 36-second thresholds. A successful knock hides and suspends hints because the answering window becomes the persistent next-step cue.
+- Kept both Test Story buttons behind the unchanged localhost plus `?storyTest=1` gate. Normal exploration and GitHub Pages do not expose either development control.
+- Agent checks: `node --check` passed for the application and all four audio builders; all 61 document IDs are unique; both cottage controls retain button semantics, disabled startup state, and keyboard focus attributes; source inspection finds the four cottage controller functions, one centralized story-state entry, the localhost gate, and one King silhouette/eyes/face set; cottage target source sizes are 66x101 and 63x75 units; CSS braces balance at 168/168; the ambient and Story 1 WAV hashes match `HEAD`; and `git diff --check` passed apart from line-ending notices.
+- Verification boundary: no rendered pointer, keyboard, listening, timing, Pause/Resume, reduced-motion, physical-smartphone, replay, cross-story-order, or public-host result is claimed. The earlier local HTTP approach was not retried after its two documented failures. These remain Developer tests.
+
+**Developer local-browser regression results — direct testing only:**
+
+- [x] Discoverability — Passed.
+- [x] Door interaction — Passed.
+- [x] Window interaction — Passed.
+- [x] Storytelling — Passed.
+- [x] Sound and animation — Passed.
+- [x] Reset and replay — Passed.
+- [x] Story independence — Passed.
+- [x] Pause/Resume — Passed.
+- [x] Accessibility — Passed.
+- [x] Smartphone — Passed.
+
+The Developer recorded no observations or problems. No phone model, mobile browser, desktop browser, input-method breakdown, assistive-technology detail, or other device information was supplied, so none is inferred. The smartphone result is attributed directly to the Developer and is not an Agent test.
+
+**Developer verification history and final results:**
+
+- [ ] Reduced motion — **Failed** in direct Developer testing. In Microsoft Edge DevTools, the Developer emulated `prefers-reduced-motion: reduce`, refreshed, entered the experience, and found that clicking the cottage door ring or window did not produce sufficiently apparent interaction or allow them to proceed through Story 2.
+- [x] Hints — **Passed** in direct Developer testing. This is recorded as the Developer's runtime result for the required progressive hint behavior.
+
+**Developer follow-up after the focused corrections:**
+
+- [x] Reduced motion — **Passed** in direct Developer testing.
+- [x] Normal motion — **Passed** in direct Developer testing.
+- These follow-up results are recorded separately from Agent Chrome automation. The Developer supplied no remaining issue, viewport, browser-version, or new device detail, so none is inferred.
+- The earlier physical-smartphone result remains the Developer's pre-deployment Story 2 test. No physical-smartphone retest of the new public deployment is claimed.
+
+**Reduced-motion functional investigation and targeted correction:**
+
+- Added an Edge DevTools Protocol regression harness that serves the local app, emulates `prefers-reduced-motion: reduce` before navigation, uses real coordinate clicks, reports the element receiving each click, and inspects the controller state after entry, door activation, and window activation.
+- The first sandboxed run could not open Edge's debugging endpoint. The approved unsandboxed run detected reduced motion, removed `inert` after Enter, reported both cottage targets enabled with the door at `tabindex="0"`, delivered the door click to `.cottage-hit-area`, changed the cottage to `ready`, delivered the window click to its `.cottage-hit-area`, and entered global `story` state with `aria-busy="true"`. The diagnostic then exited nonzero only because Edge still held its temporary profile lock during cleanup; the harness cleanup has been made tolerant for later use. The interaction-state evidence is retained, but the run is not treated as a full passing regression test.
+- Root cause: reduced-motion CSS replaced the ready window's normal glow and spark with the generic `leaf-rest-reduced` animation, whose opacity ranges only from `.08` to `.2`. Pointer events and state transitions remained functional, but the persistent next-step cue became nearly invisible, making the cottage appear unresponsive. The cottage knock and quiet-window Web Animations also retained standard-motion transforms, weakening the promised reduced-motion feedback model.
+- Smallest correction: when reduced motion is active, the knock and quiet-window responses now use opacity-only Web Animations with no rotation, translation, or scale. The ready glow and spark now remain at high opacity with a slow `.72`–`1` pulse, and the ready window receives a persistent dashed target outline. Standard-motion keyframes, Story 2 choreography, Story 1, shared controls, audio, state transitions, and target geometry are unchanged.
+- Post-fix Agent checks: `node --check` passed for `app.js`, the Story 2 audio builder, and the Edge diagnostic; CSS braces balance at 172/172; source assertions confirm the opacity-only branches, high-opacity ready animation, and persistent outline; ambient and Story 1 WAV hashes still match `HEAD`; and `git diff --check` passed apart from line-ending notices. These checks do not replace Developer runtime retesting.
+- The initial reduced-motion failure remains part of the testing history. Its follow-up status is now **Passed by direct Developer testing**, independently of the Agent diagnostic evidence.
+
+**Developer screen-recording follow-up and short-viewport correction:**
+
+- The Developer supplied `녹음 2026-10-25 203758.mp4` and reported that, with Chrome DevTools emulating `prefers-reduced-motion: reduce`, the forest appeared but the torch, cottage door, and cottage window did not allow either story to be triggered. This remains a direct Developer **failure**, not a passed reduced-motion result.
+- The recording file reports a 3838×2098 frame and approximately 116.3-second duration. Browser-based frame extraction failed twice because the installed browsers' headless GPU processes crashed; no unobserved visual details are inferred from the recording.
+- Chrome DevTools Protocol testing reproduced a concrete shared-layout failure at a 744×475 CSS-pixel viewport, representative of a page shortened by docked DevTools. The app correctly entered `exploring`, was not paused or inert, and marked all three exploration controls enabled, but the torch target extended from approximately y=467 to y=632 and its center was below the 475-pixel viewport. `elementFromPoint` therefore returned no receiver at the attempted torch coordinate. The cottage controller itself still accepted real door and window clicks in this diagnostic.
+- The same pre-correction test at 1280×900 succeeded for the torch fallback and cottage path. This distinguishes the reproducible defect from reduced-motion state, animation completion, or audio resource loading: the governing problem was the portrait SVG's `slice` presentation being cropped by a short landscape viewport.
+- HTTP and `file:///` tests produced the same controller and resource results in the current source. Audio elements reported no media errors in either protocol. A local HTTP server remains the required testing path because it matches GitHub Pages behavior and avoids browser-specific local-file restrictions, but local-file loading did not cause this reproduced failure.
+- Approved smallest correction: only at viewport heights of 600 CSS pixels or less, size the stage width from the original 390:844 composition ratio and remove the 32rem minimum height so the complete visible scene fits inside the viewport. Scale the invisible torch, lantern, door, and window hit rectangles within that short-viewport rule so the fitted artwork remains practically clickable. The visual objects themselves are now inside the viewport; the correction does not rely on hit-area enlargement around clipped artwork.
+- No Story 1 or Story 2 artwork, audio, timeline, interaction controller, story choreography, normal-height layout, or shared Pause/Resume logic was changed by this correction.
+
+**Post-correction Agent Chrome checks — not Developer verification:**
+
+- Real-pointer matrix passed at 744×475 with reduced motion, 744×475 with standard motion, 1280×900 with reduced motion, and 1280×900 with standard motion. Each case entered active `exploring`, removed `inert`, left Pause off, delivered pointer input to the actual SVG hit rectangles, started Story 1 through the select-then-lantern fallback, and started Story 2 through door then window.
+- The 744×475 short-viewport geometry check passed in both motion modes. The complete SVG stage rendered from y=0 to y=475; the torch artwork rendered within approximately y=336–392, the cottage within y=189–303, the door ring within y=269–281, and the lantern within y=179–281. Their hit rectangles also remained inside the viewport. This verifies layout bounds and event recipients, not subjective appearance.
+- The full real-time 744×475 reduced-motion HTTP lifecycle passed: Story 1 fallback start, Pause/Resume, completion reset, physical pointer drag/drop replay, second reset, Story 2 door/window start, Pause/Resume, completion reset, replay, and second reset.
+- The same full lifecycle passed at 1280×900 with standard motion, providing regression evidence that the approved full-height interaction behavior remains functional.
+- Basic interaction-start checks also passed over `file:///` in all four matrix cases. The full lifecycle was run over HTTP, the deployment-like path, rather than duplicated over `file:///`.
+- `node --check` passed for the Chrome diagnostic. These Agent results remained separate from the Developer's later reduced- and normal-motion passes.
+
+All required Checkpoint 8 acceptance criteria now have direct Developer results or the documented source-level evidence appropriate to the criterion. Checkpoint 8 is complete. The earlier failed reduced-motion result is retained above as consequential revision evidence rather than overwritten. The new public deployment still requires source/runtime verification and is not recorded as physically smartphone-tested unless the Developer explicitly performs that separate test. Story 3 implementation remains excluded until its creative direction is approved.
 
 ### [ ] Phase 2 Checkpoint 9: Specify and storyboard Story 3
 

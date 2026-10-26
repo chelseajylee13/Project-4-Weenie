@@ -8,18 +8,27 @@ const preferenceNote = document.querySelector("#preference-note");
 const motionStatus = document.querySelector("#motion-status");
 const playPauseButton = document.querySelector("#play-pause-button");
 const testStoryButton = document.querySelector("#test-story-button");
+const testStoryTwoButton = document.querySelector("#test-story-two-button");
 const playbackStatus = document.querySelector("#playback-status");
 const torchInteractionStatus = document.querySelector("#torch-interaction-status");
+const cottageInteractionStatus = document.querySelector("#cottage-interaction-status");
 const sceneHint = document.querySelector("#scene-hint");
 const sceneSvg = document.querySelector(".scene-art");
 const ambientAudio = document.querySelector("#ambient-audio");
 const storyAudio = document.querySelector("#story-one-audio");
+const storyTwoAudio = document.querySelector("#story-two-audio");
+const cottageKnockAudio = document.querySelector("#cottage-knock-audio");
+const cottageWindowResponseAudio = document.querySelector("#cottage-window-response-audio");
 const lanternFeedbackAudio = document.querySelector("#lantern-feedback-audio");
 const lanternIgnitionAudio = document.querySelector("#lantern-ignition-audio");
 const lanternTrigger = document.querySelector("#lantern-trigger");
 const lanternGlow = document.querySelector(".lantern-glow");
 const lanternGlass = document.querySelector(".lantern-glass");
 const torchTrigger = document.querySelector("#torch-trigger");
+const cottageDoorTrigger = document.querySelector("#cottage-door-trigger");
+const cottageWindowTrigger = document.querySelector("#cottage-window-trigger");
+const cottageDoorRing = document.querySelector(".cottage-door-ring");
+const cottageWindowResponse = document.querySelector(".cottage-window-response");
 const kingSilhouetteBase = document.querySelector(".king-silhouette-base");
 const kingEyes = document.querySelector(".king-eyes");
 const kingFaceDetails = document.querySelector(".king-face-details");
@@ -36,6 +45,15 @@ const crownCenterPiece = document.querySelector(".crown-center-piece");
 const crownRightPiece = document.querySelector(".crown-right-piece");
 const storyKing = document.querySelector(".story-king-presence");
 const storyLeaves = document.querySelector(".story-crown-leaves");
+const storyTwoLayer = document.querySelector("#story-two-layer");
+const storyTwoCottageHaze = document.querySelector(".story-two-cottage-haze");
+const storyTwoWindowGlow = document.querySelector(".story-two-window-glow");
+const storyTwoWindowCurtain = document.querySelector(".story-two-window-curtain");
+const storyTwoShadow = document.querySelector(".story-two-shadow");
+const storyTwoShadowHead = document.querySelector(".story-two-shadow-head");
+const storyTwoShadowFace = document.querySelector(".story-two-shadow-face");
+const storyTwoRibbon = document.querySelector(".story-two-ribbon");
+const storyTwoWindowSpark = document.querySelector(".story-two-window-spark");
 
 const STORY_DURATION = 8000;
 const FULL_AMBIENT_VOLUME = 1;
@@ -43,8 +61,11 @@ const DUCKED_AMBIENT_VOLUME = 0.58;
 const IGNITION_VOLUME = 0.42;
 const HINTS = [
   { at: 12000, text: "A little flame waits among the roots..." },
+  { at: 18000, text: "The crooked cottage seems to be listening..." },
   { at: 24000, text: "Perhaps the flame belongs somewhere else." },
+  { at: 30000, text: "Perhaps someone is waiting behind the door." },
   { at: 36000, text: "The lantern above is waiting to be lit." },
+  { at: 42000, text: "Give the door a knock, then follow the light." },
 ];
 const LANTERN_FEEDBACK_SOURCES = [
   "assets/audio/lantern-step-1.wav",
@@ -67,6 +88,7 @@ let storyAnimations = [];
 let pausedAmbientAnimations = [];
 let storyMasterAnimation = null;
 let storyRunId = 0;
+let activeStoryId = null;
 let audioMixFrame = null;
 let lanternFeedbackUnavailable = false;
 let storyStartedFrom = "development";
@@ -75,6 +97,13 @@ let torchOffset = { x: 0, y: 0 };
 let torchDrag = null;
 let torchReturnAnimation = null;
 let lastTorchInputWasKeyboard = false;
+let cottageMode = "idle";
+let lastCottageInputWasKeyboard = false;
+let cottageFeedbackAnimations = [];
+let cottageKnockAudioActive = false;
+let cottageWindowAudioActive = false;
+let cottageKnockAudioUnavailable = false;
+let cottageWindowAudioUnavailable = false;
 let storyStartPending = false;
 let hintElapsed = 0;
 let hintStartedAt = null;
@@ -90,11 +119,20 @@ function activeState() {
   return appState === "paused" ? resumeState : appState;
 }
 
+function activeStoryName() {
+  return activeStoryId === "two" ? "Story 2" : "Story 1";
+}
+
+function activeStoryAudio() {
+  return activeStoryId === "two" ? storyTwoAudio : storyAudio;
+}
+
 function updateStateAttributes() {
   document.body.dataset.state = appState;
   document.body.dataset.activeState = activeState();
   document.body.dataset.paused = String(isPaused);
   document.body.dataset.torchNear = String(torchMode === "near-lantern");
+  document.body.dataset.cottageReady = String(cottageMode === "ready");
 
   const storyIsActive = activeState() === "story";
   const torchEnabled = hasEntered
@@ -105,7 +143,14 @@ function updateStateAttributes() {
   const torchSelected = torchMode === "selected";
   const torchDragging = torchMode === "dragging" || torchMode === "near-lantern";
   const lanternEnabled = torchEnabled && torchSelected;
+  const cottageEnabled = hasEntered
+    && appState === "exploring"
+    && !isPaused
+    && !storyStartPending;
+  const cottageDoorEnabled = cottageEnabled && cottageMode === "idle";
+  const cottageWindowEnabled = cottageEnabled;
   testStoryButton.disabled = isPaused || appState !== "exploring" || storyStartPending || torchDragging;
+  testStoryTwoButton.disabled = isPaused || appState !== "exploring" || storyStartPending || torchDragging;
   torchTrigger.dataset.enabled = String(torchEnabled);
   torchTrigger.dataset.selected = String(torchSelected);
   torchTrigger.dataset.dragging = String(torchDragging);
@@ -127,12 +172,34 @@ function updateStateAttributes() {
       ? "Hanging lantern. Activate to light it with the selected torch and awaken the King."
       : "Hanging lantern. Select the burning torch first.",
   );
+  cottageDoorTrigger.dataset.enabled = String(cottageDoorEnabled);
+  cottageDoorTrigger.dataset.ready = String(cottageMode === "ready");
+  cottageDoorTrigger.setAttribute("aria-disabled", String(!cottageDoorEnabled));
+  cottageDoorTrigger.setAttribute("aria-pressed", String(cottageMode === "ready"));
+  cottageDoorTrigger.setAttribute("tabindex", cottageDoorEnabled ? "0" : "-1");
+  cottageDoorTrigger.setAttribute(
+    "aria-label",
+    cottageMode === "ready"
+      ? "Cottage door ring. The door has been knocked; investigate the answering window."
+      : "Cottage door ring. Knock once to see whether the cottage answers.",
+  );
+  cottageWindowTrigger.dataset.enabled = String(cottageWindowEnabled);
+  cottageWindowTrigger.dataset.ready = String(cottageMode === "ready");
+  cottageWindowTrigger.setAttribute("aria-disabled", String(!cottageWindowEnabled));
+  cottageWindowTrigger.setAttribute("aria-pressed", String(cottageMode === "ready"));
+  cottageWindowTrigger.setAttribute("tabindex", cottageWindowEnabled ? "0" : "-1");
+  cottageWindowTrigger.setAttribute(
+    "aria-label",
+    cottageMode === "ready"
+      ? "The cottage window is glowing and ready. Activate it to follow the escaped shadow."
+      : "Cottage window. It is quiet; perhaps the door can wake it.",
+  );
   playPauseButton.setAttribute("aria-pressed", String(isPaused));
   playPauseButton.setAttribute(
     "aria-label",
     isPaused
-      ? storyIsActive ? "Resume Story 1" : "Resume ambient scene"
-      : storyIsActive ? "Pause Story 1" : "Pause ambient scene",
+      ? storyIsActive ? `Resume ${activeStoryName()}` : "Resume ambient scene"
+      : storyIsActive ? `Pause ${activeStoryName()}` : "Pause ambient scene",
   );
 }
 
@@ -194,6 +261,7 @@ function startHintClock() {
     || torchMode === "dragging"
     || torchMode === "near-lantern"
     || torchMode === "returning"
+    || cottageMode === "ready"
     || nextHintIndex >= HINTS.length
     || hintTimer !== null
   ) return;
@@ -259,6 +327,174 @@ function playIgnitionAudio() {
   lanternIgnitionAudio.volume = IGNITION_VOLUME;
   ignitionAudioUnavailable = false;
   ignitionAudioActive = true;
+}
+
+function cancelCottageFeedbackAnimations() {
+  for (const animation of cottageFeedbackAnimations) animation.cancel();
+  cottageFeedbackAnimations = [];
+}
+
+function stopCottageFeedbackAudio() {
+  cottageKnockAudio.pause();
+  cottageWindowResponseAudio.pause();
+  cottageKnockAudio.currentTime = 0;
+  cottageWindowResponseAudio.currentTime = 0;
+  cottageKnockAudioActive = false;
+  cottageWindowAudioActive = false;
+}
+
+function syncCottageFeedbackAudio() {
+  const canPlay = !isPaused && appState === "exploring";
+  const syncCue = (audio, active, unavailable, onFailure) => {
+    if (!active || unavailable || audio.ended) return;
+    if (!canPlay) {
+      audio.pause();
+      return;
+    }
+    playAudio(audio, onFailure);
+  };
+
+  syncCue(cottageKnockAudio, cottageKnockAudioActive, cottageKnockAudioUnavailable, () => {
+    cottageKnockAudioUnavailable = true;
+    cottageKnockAudioActive = false;
+    reportAudioFailure("The cottage still responds visually, but its wooden knock is unavailable.");
+  });
+  syncCue(cottageWindowResponseAudio, cottageWindowAudioActive, cottageWindowAudioUnavailable, () => {
+    cottageWindowAudioUnavailable = true;
+    cottageWindowAudioActive = false;
+    reportAudioFailure("The cottage window still responds visually, but its sound is unavailable.");
+  });
+}
+
+function playCottageCue(audio, cueName, volume) {
+  audio.pause();
+  audio.currentTime = 0;
+  audio.volume = volume;
+  if (cueName === "knock") {
+    cottageKnockAudioUnavailable = false;
+    cottageKnockAudioActive = true;
+  } else {
+    cottageWindowAudioUnavailable = false;
+    cottageWindowAudioActive = true;
+  }
+  syncCottageFeedbackAudio();
+}
+
+function animateCottageAnswer() {
+  cancelCottageFeedbackAnimations();
+  const reduceMotion = reducedMotionQuery.matches;
+  const doorAnimation = cottageDoorRing.animate(
+    reduceMotion
+      ? [
+        { opacity: 1, transform: "none" },
+        { opacity: 0.56, transform: "none", offset: 0.46 },
+        { opacity: 0.72, transform: "none" },
+      ]
+      : [
+        { transform: "rotate(0deg) translateY(0)" },
+        { transform: "rotate(-8deg) translateY(2px)", offset: 0.32 },
+        { transform: "rotate(6deg) translateY(0)", offset: 0.62 },
+        { transform: "rotate(0deg) translateY(0)" },
+      ],
+    { duration: 430, easing: "ease-in-out" },
+  );
+  const windowAnimation = cottageWindowResponse.animate(
+    reduceMotion
+      ? [
+        { opacity: 0.24, transform: "none" },
+        { opacity: 1, transform: "none", offset: 0.35, easing: "ease-out" },
+        { opacity: 1, transform: "none" },
+      ]
+      : [
+        { opacity: 0.2, transform: "translateX(0) scale(.94)" },
+        { opacity: 1, transform: "translateX(-2px) scale(1.08)", offset: 0.46, easing: "ease-out" },
+        { opacity: 1, transform: "translateX(0) scale(1)" },
+      ],
+    { duration: 680, easing: "ease-in-out" },
+  );
+  cottageFeedbackAnimations = [doorAnimation, windowAnimation];
+  Promise.allSettled(cottageFeedbackAnimations.map((animation) => animation.finished))
+    .then(() => {
+      if (cottageFeedbackAnimations[0] !== doorAnimation) return;
+      cancelCottageFeedbackAnimations();
+    });
+}
+
+function knockCottageDoor(inputWasKeyboard) {
+  if (!hasEntered || isPaused || appState !== "exploring" || storyStartPending || cottageMode !== "idle") return;
+
+  cottageMode = "ready";
+  lastCottageInputWasKeyboard = inputWasKeyboard;
+  pauseHintClock();
+  hideHint();
+  cottageInteractionStatus.textContent = "The door answers with a knock. The cottage window shifts and glows, ready to investigate.";
+  updateStateAttributes();
+  animateCottageAnswer();
+  playCottageCue(cottageKnockAudio, "knock", 0.72);
+  playCottageCue(cottageWindowResponseAudio, "window", 0.68);
+  if (inputWasKeyboard) cottageWindowTrigger.focus({ preventScroll: true });
+}
+
+function testClosedCottageWindow(inputWasKeyboard) {
+  if (!hasEntered || isPaused || appState !== "exploring" || storyStartPending || cottageMode !== "idle") return;
+
+  lastCottageInputWasKeyboard = inputWasKeyboard;
+  resetHintClock();
+  cottageInteractionStatus.textContent = "The cottage window gives a quiet shiver but stays closed. Perhaps the door can wake it.";
+  playCottageCue(cottageWindowResponseAudio, "window", 0.28);
+  cancelCottageFeedbackAnimations();
+  const reduceMotion = reducedMotionQuery.matches;
+  const animation = cottageWindowResponse.animate(
+    reduceMotion
+      ? [
+        { opacity: 0, transform: "none" },
+        { opacity: 0.72, transform: "none", offset: 0.45 },
+        { opacity: 0, transform: "none" },
+      ]
+      : [
+        { opacity: 0, transform: "translateX(0)" },
+        { opacity: 0.55, transform: "translateX(-2px)", offset: 0.45 },
+        { opacity: 0, transform: "translateX(1px)" },
+      ],
+    { duration: 360, easing: "ease-in-out" },
+  );
+  cottageFeedbackAnimations = [animation];
+  animation.finished.then(() => {
+    if (cottageFeedbackAnimations[0] === animation) cancelCottageFeedbackAnimations();
+  }).catch(() => {});
+}
+
+function activateCottageWindow(inputWasKeyboard) {
+  if (!hasEntered || isPaused || appState !== "exploring" || storyStartPending) return;
+  if (cottageMode !== "ready") {
+    testClosedCottageWindow(inputWasKeyboard);
+    return;
+  }
+
+  storyStartPending = true;
+  lastCottageInputWasKeyboard = inputWasKeyboard;
+  pauseHintClock();
+  hideHint();
+  cottageInteractionStatus.textContent = "The answering window opens. A mischievous shadow slips into the forest.";
+  updateStateAttributes();
+  startStory("two", "cottage");
+  storyStartPending = false;
+}
+
+function resetCottageInteraction({ announce = true, restartHints = true, restoreFocus = false } = {}) {
+  cancelCottageFeedbackAnimations();
+  stopCottageFeedbackAudio();
+  cottageMode = "idle";
+  if (announce) cottageInteractionStatus.textContent = "The cottage door and window wait quietly in the forest.";
+  updateStateAttributes();
+  if (restartHints) resetHintClock();
+  if (restoreFocus) cottageDoorTrigger.focus({ preventScroll: true });
+}
+
+function cancelCottageReady(returnFocus = false) {
+  if (cottageMode !== "ready") return;
+  cottageInteractionStatus.textContent = "The cottage settles. Its door and window are ready to discover again.";
+  resetCottageInteraction({ announce: false, restartHints: true, restoreFocus: returnFocus });
 }
 
 function clientToScenePoint(event) {
@@ -375,7 +611,7 @@ function igniteLantern(inputWasKeyboard) {
   torchInteractionStatus.textContent = "The torch lights the hanging lantern. The warm glow awakens the King.";
   updateStateAttributes();
   playIgnitionAudio();
-  startStory("torch");
+  startStory("one", "torch");
   syncIgnitionAudio();
   storyStartPending = false;
 }
@@ -489,22 +725,25 @@ function storyTimeSeconds() {
 
 function syncStoryAudioToTimeline() {
   if (activeState() !== "story" || storyAudioUnavailable) return;
+  const audio = activeStoryAudio();
   const targetTime = Math.min(storyTimeSeconds(), STORY_DURATION / 1000);
-  if (Math.abs(storyAudio.currentTime - targetTime) > 0.045) storyAudio.currentTime = targetTime;
+  if (Math.abs(audio.currentTime - targetTime) > 0.045) audio.currentTime = targetTime;
 }
 
 function syncStoryAudio() {
   if (activeState() !== "story") return;
 
+  const audio = activeStoryAudio();
+
   if (isPaused) {
-    storyAudio.pause();
+    audio.pause();
     return;
   }
 
   syncStoryAudioToTimeline();
-  playAudio(storyAudio, () => {
+  playAudio(audio, () => {
     storyAudioUnavailable = true;
-    reportAudioFailure("Story 1 continues visually, but its sound could not start.");
+    reportAudioFailure(`${activeStoryName()} continues visually, but its sound could not start.`);
   });
 }
 
@@ -547,8 +786,11 @@ function setPaused(nextPaused, announce = true) {
     for (const animation of experience.getAnimations({ subtree: true })) animation.pause();
     ambientAudio.pause();
     storyAudio.pause();
+    storyTwoAudio.pause();
     lanternFeedbackAudio.pause();
     lanternIgnitionAudio.pause();
+    cottageKnockAudio.pause();
+    cottageWindowResponseAudio.pause();
     pauseHintClock();
     if (audioMixFrame !== null) cancelAnimationFrame(audioMixFrame);
     audioMixFrame = null;
@@ -568,6 +810,7 @@ function setPaused(nextPaused, announce = true) {
       startStoryAudioMix();
     } else if (appState === "exploring") {
       syncInteractionFeedbackAudio();
+      syncCottageFeedbackAudio();
       startHintClock();
     }
   }
@@ -577,8 +820,8 @@ function setPaused(nextPaused, announce = true) {
   if (announce && hasEntered) {
     const storyIsActive = activeState() === "story";
     playbackStatus.textContent = isPaused
-      ? storyIsActive ? "Story 1 paused." : "Ambient scene paused."
-      : storyIsActive ? "Story 1 resumed." : "Ambient scene resumed.";
+      ? storyIsActive ? `${activeStoryName()} paused.` : "Ambient scene paused."
+      : storyIsActive ? `${activeStoryName()} resumed.` : "Ambient scene resumed.";
   }
 }
 
@@ -595,7 +838,7 @@ function makeStoryAnimation(element, keyframes, options = {}) {
   return animation;
 }
 
-function buildStoryAnimations(prefersReducedMotion) {
+function buildStoryOneAnimations(prefersReducedMotion) {
   storyAnimations = [];
   const ignitionScale = prefersReducedMotion ? 1 : 1.16;
 
@@ -764,12 +1007,160 @@ function buildStoryAnimations(prefersReducedMotion) {
   ]);
 }
 
+function buildStoryTwoAnimations(prefersReducedMotion) {
+  storyAnimations = [];
+
+  makeStoryAnimation(storyTwoWindowCurtain, [
+    { opacity: 0.88, transform: "translateX(0)", offset: 0 },
+    { opacity: 0.88, transform: "translateX(0)", offset: 0.05 },
+    { opacity: 0, transform: "translateX(-22px)", offset: 0.2, easing: "ease-out" },
+    { opacity: 0, transform: "translateX(-22px)", offset: 0.9 },
+    { opacity: 0.88, transform: "translateX(0)", offset: 0.97, easing: "ease-in" },
+    { opacity: 0, transform: "translateX(0)", offset: 1 },
+  ]);
+
+  makeStoryAnimation(storyTwoWindowGlow, [
+    { opacity: 0.12, transform: "scale(.82)", offset: 0 },
+    { opacity: 0.42, transform: "scale(.96)", offset: 0.14, easing: "ease-out" },
+    { opacity: 0.05, transform: "scale(.88)", offset: 0.28 },
+    { opacity: 0.05, transform: "scale(.88)", offset: 0.5625 },
+    { opacity: 1, transform: prefersReducedMotion ? "scale(1)" : "scale(1.2)", offset: 0.585, easing: "steps(1, end)" },
+    { opacity: 0.58, transform: "scale(1)", offset: 0.64 },
+    { opacity: 0.96, transform: prefersReducedMotion ? "scale(1)" : "scale(1.14)", offset: 0.7, easing: "ease-out" },
+    { opacity: 0.72, transform: "scale(1)", offset: 0.82 },
+    { opacity: 0.9, transform: "scale(1.08)", offset: 0.93 },
+    { opacity: 0.28, transform: "scale(.94)", offset: 0.98, easing: "ease-in" },
+    { opacity: 0, transform: "scale(.9)", offset: 1 },
+  ]);
+
+  makeStoryAnimation(storyTwoCottageHaze, [
+    { opacity: 0, transform: "scale(.84)", offset: 0 },
+    { opacity: 0.14, transform: "scale(.96)", offset: 0.18, easing: "ease-out" },
+    { opacity: 0, transform: "scale(.9)", offset: 0.3 },
+    { opacity: 0, transform: "scale(.9)", offset: 0.5625 },
+    { opacity: 0.38, transform: prefersReducedMotion ? "scale(1)" : "scale(1.1)", offset: 0.59, easing: "ease-out" },
+    { opacity: 0.3, transform: "scale(1)", offset: 0.86 },
+    { opacity: 0, transform: "scale(.92)", offset: 1, easing: "ease-in" },
+  ]);
+
+  const shadowFrames = prefersReducedMotion
+    ? [
+      { opacity: 0, transform: "translate(-3px, -4px) scale(.72)", offset: 0 },
+      { opacity: 0.96, transform: "translate(-3px, -2px) scale(.94)", offset: 0.08, easing: "ease-out" },
+      { opacity: 0.98, transform: "translate(3px, 12px) scale(1.08)", offset: 0.25 },
+      { opacity: 0, transform: "translate(3px, 12px) scale(1)", offset: 0.29 },
+      { opacity: 0, transform: "translate(45px, 38px) scale(1)", offset: 0.31 },
+      { opacity: 0.98, transform: "translate(45px, 35px) scale(1.08)", offset: 0.35, easing: "ease-out" },
+      { opacity: 0.98, transform: "translate(45px, 38px) scale(1.08)", offset: 0.41 },
+      { opacity: 0, transform: "translate(45px, 38px) scale(1)", offset: 0.44 },
+      { opacity: 0, transform: "translate(94px, 78px) scale(1)", offset: 0.46 },
+      { opacity: 0.98, transform: "translate(94px, 78px) scale(1.1)", offset: 0.5, easing: "ease-out" },
+      { opacity: 0.98, transform: "translate(94px, 78px) scale(1.1)", offset: 0.5625 },
+      { opacity: 1, transform: "translate(94px, 78px) rotate(-7deg) scale(1.14, .98)", offset: 0.59 },
+      { opacity: 1, transform: "translate(94px, 78px) rotate(-7deg) scale(1.14, .98)", offset: 0.73 },
+      { opacity: 0, transform: "translate(94px, 78px) rotate(-7deg) scale(1.24, .3)", offset: 0.77, easing: "ease-in" },
+      { opacity: 0, transform: "translate(94px, 78px) scale(1.24, .3)", offset: 1 },
+    ]
+    : [
+      { opacity: 0, transform: "translate(-4px, -7px) scale(.5)", offset: 0 },
+      { opacity: 0.96, transform: "translate(-4px, -3px) scale(.78)", offset: 0.07, easing: "ease-out" },
+      { opacity: 0.98, transform: "translate(-2px, 2px) scale(.9)", offset: 0.18 },
+      { opacity: 1, transform: "translate(4px, 14px) scale(1.16)", offset: 0.25, easing: "cubic-bezier(.2,.72,.3,1.06)" },
+      { opacity: 1, transform: "translate(25px, 0) rotate(-6deg) scale(1.08, 1.24)", offset: 0.31, easing: "ease-out" },
+      { opacity: 1, transform: "translate(45px, 38px) rotate(5deg) scale(1.2, .94)", offset: 0.37, easing: "cubic-bezier(.25,.7,.35,1.12)" },
+      { opacity: 1, transform: "translate(47px, 36px) rotate(0deg) scale(1.14)", offset: 0.42 },
+      { opacity: 1, transform: "translate(68px, 22px) rotate(-5deg) scale(1.08, 1.24)", offset: 0.46, easing: "ease-out" },
+      { opacity: 1, transform: "translate(94px, 78px) rotate(4deg) scale(1.18, .96)", offset: 0.52, easing: "cubic-bezier(.25,.7,.35,1.12)" },
+      { opacity: 1, transform: "translate(94px, 78px) rotate(0deg) scale(1.16)", offset: 0.5625 },
+      { opacity: 1, transform: "translate(94px, 78px) rotate(-11deg) scale(1.22, .96)", offset: 0.59, easing: "ease-out" },
+      { opacity: 1, transform: "translate(94px, 78px) rotate(-11deg) scale(1.22, .96)", offset: 0.7 },
+      { opacity: 1, transform: "translate(94px, 78px) rotate(-8deg) scale(1.18)", offset: 0.735 },
+      { opacity: 0, transform: "translate(94px, 78px) rotate(-8deg) scale(1.3, .3)", offset: 0.77, easing: "ease-in" },
+      { opacity: 0, transform: "translate(94px, 78px) scale(1.3, .3)", offset: 1 },
+    ];
+  makeStoryAnimation(storyTwoShadow, shadowFrames);
+
+  makeStoryAnimation(storyTwoShadowHead, prefersReducedMotion
+    ? [
+      { transform: "rotate(0deg)", offset: 0 },
+      { transform: "rotate(-4deg)", offset: 0.1 },
+      { transform: "rotate(4deg)", offset: 0.18 },
+      { transform: "rotate(0deg)", offset: 0.25 },
+      { transform: "rotate(-6deg)", offset: 0.38 },
+      { transform: "rotate(0deg)", offset: 0.5 },
+      { transform: "rotate(-8deg)", offset: 0.59, easing: "ease-out" },
+      { transform: "rotate(-8deg)", offset: 0.77 },
+      { transform: "rotate(0deg)", offset: 1 },
+    ]
+    : [
+      { transform: "rotate(0deg)", offset: 0 },
+      { transform: "rotate(-13deg)", offset: 0.1, easing: "ease-in-out" },
+      { transform: "rotate(11deg)", offset: 0.17, easing: "ease-in-out" },
+      { transform: "rotate(0deg)", offset: 0.25 },
+      { transform: "rotate(-22deg)", offset: 0.4, easing: "ease-in-out" },
+      { transform: "rotate(0deg)", offset: 0.49 },
+      { transform: "rotate(0deg)", offset: 0.5625 },
+      { transform: "rotate(-26deg)", offset: 0.59, easing: "cubic-bezier(.2,.8,.3,1.2)" },
+      { transform: "rotate(-26deg)", offset: 0.74 },
+      { transform: "rotate(0deg)", offset: 1 },
+    ]);
+
+  makeStoryAnimation(storyTwoShadowFace, [
+    { opacity: 0.9, transform: "scale(1)", offset: 0 },
+    { opacity: 0.9, transform: "scale(1)", offset: 0.5625 },
+    { opacity: 1, transform: prefersReducedMotion ? "scale(1.22)" : "scale(1.55)", offset: 0.59, easing: "ease-out" },
+    { opacity: 1, transform: prefersReducedMotion ? "scale(1.22)" : "scale(1.55)", offset: 0.74 },
+    { opacity: 0, transform: "scale(.7)", offset: 0.78 },
+    { opacity: 0, transform: "scale(.7)", offset: 1 },
+  ]);
+
+  const ribbonFrames = prefersReducedMotion
+    ? [
+      { opacity: 0, transform: "translate(0, 0) scale(1)", offset: 0 },
+      { opacity: 0, transform: "translate(0, 0) scale(1)", offset: 0.74 },
+      { opacity: 0.92, transform: "translate(0, 0) scale(1.08)", offset: 0.78 },
+      { opacity: 0, transform: "translate(0, 0) scale(.82)", offset: 0.84 },
+      { opacity: 0, transform: "translate(-94px, -78px) scale(.38)", offset: 0.85 },
+      { opacity: 0.88, transform: "translate(-94px, -78px) scale(.38)", offset: 0.9 },
+      { opacity: 0, transform: "translate(-92px, -84px) scale(.2)", offset: 1 },
+    ]
+    : [
+      { opacity: 0, transform: "translate(0, 0) rotate(0deg) scale(1)", offset: 0 },
+      { opacity: 0, transform: "translate(0, 0) rotate(0deg) scale(1)", offset: 0.74 },
+      { opacity: 0.96, transform: "translate(0, 0) rotate(0deg) scale(1.08)", offset: 0.77 },
+      { opacity: 0.94, transform: "translate(-24px, -16px) rotate(-9deg) scale(.92)", offset: 0.82, easing: "ease-in-out" },
+      { opacity: 0.9, transform: "translate(-50px, -37px) rotate(8deg) scale(.7)", offset: 0.87 },
+      { opacity: 0.82, transform: "translate(-76px, -60px) rotate(-6deg) scale(.48)", offset: 0.92 },
+      { opacity: 0.72, transform: "translate(-94px, -78px) rotate(0deg) scale(.28)", offset: 0.96, easing: "ease-in" },
+      { opacity: 0, transform: "translate(-94px, -78px) rotate(0deg) scale(.18)", offset: 1 },
+    ];
+  makeStoryAnimation(storyTwoRibbon, ribbonFrames);
+
+  makeStoryAnimation(storyTwoWindowSpark, [
+    { opacity: 0, transform: "scale(.7)", offset: 0 },
+    { opacity: 0, transform: "scale(.7)", offset: 0.5625 },
+    { opacity: 0.92, transform: "scale(1.1)", offset: 0.59, easing: "ease-out" },
+    { opacity: 0.38, transform: "scale(.9)", offset: 0.66 },
+    { opacity: 0.9, transform: "scale(1.08)", offset: 0.72 },
+    { opacity: 0.46, transform: "scale(.96)", offset: 0.86 },
+    { opacity: 0.88, transform: "scale(1.12)", offset: 0.94 },
+    { opacity: 0, transform: "scale(1.16)", offset: 1, easing: "ease-in" },
+  ]);
+
+  storyMasterAnimation = makeStoryAnimation(storyTwoLayer, [
+    { opacity: 1 },
+    { opacity: 1 },
+  ]);
+}
+
 function finishStory(runId) {
   if (runId !== storyRunId || activeState() !== "story") return;
 
+  const completedStoryId = activeStoryId;
+  const completedStoryAudio = activeStoryAudio();
   stopStoryAudioMix();
-  storyAudio.pause();
-  storyAudio.currentTime = 0;
+  completedStoryAudio.pause();
+  completedStoryAudio.currentTime = 0;
   lanternIgnitionAudio.pause();
   lanternIgnitionAudio.currentTime = 0;
   ignitionAudioActive = false;
@@ -777,24 +1168,34 @@ function finishStory(runId) {
   storyAnimations = [];
   storyMasterAnimation = null;
   experience.removeAttribute("aria-busy");
+  activeStoryId = null;
   setAppState("exploring");
 
   for (const animation of pausedAmbientAnimations) animation.play();
   pausedAmbientAnimations = [];
   resetTorchInteraction();
-  playbackStatus.textContent = "Story 1 complete. The forest is ready to replay.";
-  if (storyStartedFrom === "torch" && lastTorchInputWasKeyboard) {
+  resetCottageInteraction({ announce: true, restartHints: false });
+  playbackStatus.textContent = `${completedStoryId === "two" ? "Story 2" : "Story 1"} complete. The forest is ready to replay.`;
+  if (completedStoryId === "one" && storyStartedFrom === "torch" && lastTorchInputWasKeyboard) {
     torchTrigger.focus({ preventScroll: true });
-  } else if (storyStartedFrom === "development" && developmentToolsEnabled) {
+  } else if (completedStoryId === "one" && storyStartedFrom === "development" && developmentToolsEnabled) {
     testStoryButton.focus({ preventScroll: true });
+  } else if (completedStoryId === "two" && storyStartedFrom === "development" && developmentToolsEnabled) {
+    testStoryTwoButton.focus({ preventScroll: true });
+  } else if (completedStoryId === "two" && storyStartedFrom === "cottage" && lastCottageInputWasKeyboard) {
+    cottageDoorTrigger.focus({ preventScroll: true });
   }
 }
 
-function startStory(source = "development") {
+function startStory(storyId, source = "development") {
   if (!hasEntered || isPaused || appState !== "exploring") return;
+  if (!["one", "two"].includes(storyId)) return;
 
   const runId = ++storyRunId;
+  activeStoryId = storyId;
   storyStartedFrom = source;
+  if (storyId === "two") resetTorchInteraction();
+  resetCottageInteraction({ announce: false, restartHints: false });
   pauseHintClock();
   hideHint();
   lanternFeedbackAudio.pause();
@@ -806,8 +1207,11 @@ function startStory(source = "development") {
   storyAudioUnavailable = false;
   storyAudio.pause();
   storyAudio.currentTime = 0;
+  storyTwoAudio.pause();
+  storyTwoAudio.currentTime = 0;
 
-  buildStoryAnimations(reducedMotionQuery.matches);
+  if (storyId === "two") buildStoryTwoAnimations(reducedMotionQuery.matches);
+  else buildStoryOneAnimations(reducedMotionQuery.matches);
   storyMasterAnimation.finished
     .then(() => finishStory(runId))
     .catch(() => {});
@@ -815,7 +1219,9 @@ function startStory(source = "development") {
   for (const animation of storyAnimations) animation.play();
   syncStoryAudio();
   startStoryAudioMix();
-  playbackStatus.textContent = "Story 1: The Crown in the Trees has begun.";
+  playbackStatus.textContent = storyId === "two"
+    ? "Story 2: The Shadow That Escaped has begun."
+    : "Story 1: The Crown in the Trees has begun.";
 }
 
 applyMotionPreference(reducedMotionQuery.matches);
@@ -827,7 +1233,8 @@ if (typeof reducedMotionQuery.addEventListener === "function") {
 
 enterButton.addEventListener("click", enterExperience);
 playPauseButton.addEventListener("click", () => setPaused(!isPaused));
-testStoryButton.addEventListener("click", () => startStory("development"));
+testStoryButton.addEventListener("click", () => startStory("one", "development"));
+testStoryTwoButton.addEventListener("click", () => startStory("two", "development"));
 torchTrigger.addEventListener("pointerdown", beginTorchDrag);
 torchTrigger.addEventListener("pointermove", moveTorch);
 torchTrigger.addEventListener("pointerup", endTorchDrag);
@@ -860,17 +1267,41 @@ lanternTrigger.addEventListener("keydown", (event) => {
     igniteLantern(true);
   }
 });
+cottageDoorTrigger.addEventListener("click", () => knockCottageDoor(false));
+cottageDoorTrigger.addEventListener("keydown", (event) => {
+  if (event.key === "Escape") {
+    event.preventDefault();
+    cancelCottageReady(true);
+    return;
+  }
+  if (event.key !== "Enter" && event.key !== " ") return;
+  event.preventDefault();
+  knockCottageDoor(true);
+});
+cottageWindowTrigger.addEventListener("click", () => activateCottageWindow(false));
+cottageWindowTrigger.addEventListener("keydown", (event) => {
+  if (event.key === "Escape") {
+    event.preventDefault();
+    cancelCottageReady(true);
+    return;
+  }
+  if (event.key !== "Enter" && event.key !== " ") return;
+  event.preventDefault();
+  activateCottageWindow(true);
+});
 
 experience.addEventListener("keydown", (event) => {
-  if (event.key !== "Escape" || torchMode !== "selected") return;
+  if (event.key !== "Escape") return;
+  if (torchMode !== "selected" && cottageMode !== "ready") return;
   event.preventDefault();
-  cancelTorchSelection(true);
+  if (torchMode === "selected") cancelTorchSelection(true);
+  if (cottageMode === "ready") cancelCottageReady(true);
 });
 
 function recordExplorationActivity(event) {
   if (isPaused || appState !== "exploring" || storyStartPending) return;
   const target = event.target;
-  if (target.closest?.("#torch-trigger, #lantern-trigger, #play-pause-button, #test-story-button")) return;
+  if (target.closest?.("#torch-trigger, #lantern-trigger, #cottage-door-trigger, #cottage-window-trigger, #play-pause-button, #test-story-button, #test-story-two-button")) return;
   resetHintClock();
 }
 
@@ -885,8 +1316,36 @@ ambientAudio.addEventListener("error", () => {
   if (hasEntered) reportAudioFailure("Ambient visuals are active, but ambient audio is unavailable.");
 });
 storyAudio.addEventListener("error", () => {
+  if (activeStoryId !== "one") return;
   storyAudioUnavailable = true;
   if (activeState() === "story") reportAudioFailure("Story 1 continues visually, but its sound is unavailable.");
+});
+storyTwoAudio.addEventListener("error", () => {
+  if (activeStoryId !== "two") return;
+  storyAudioUnavailable = true;
+  if (activeState() === "story") reportAudioFailure("Story 2 continues visually, but its sound is unavailable.");
+});
+cottageKnockAudio.addEventListener("playing", () => {
+  cottageKnockAudioUnavailable = false;
+});
+cottageKnockAudio.addEventListener("ended", () => {
+  cottageKnockAudioActive = false;
+});
+cottageKnockAudio.addEventListener("error", () => {
+  cottageKnockAudioUnavailable = true;
+  cottageKnockAudioActive = false;
+  if (hasEntered) reportAudioFailure("The cottage still responds visually, but its wooden knock is unavailable.");
+});
+cottageWindowResponseAudio.addEventListener("playing", () => {
+  cottageWindowAudioUnavailable = false;
+});
+cottageWindowResponseAudio.addEventListener("ended", () => {
+  cottageWindowAudioActive = false;
+});
+cottageWindowResponseAudio.addEventListener("error", () => {
+  cottageWindowAudioUnavailable = true;
+  cottageWindowAudioActive = false;
+  if (hasEntered) reportAudioFailure("The cottage window still responds visually, but its sound is unavailable.");
 });
 lanternFeedbackAudio.addEventListener("playing", () => {
   lanternFeedbackUnavailable = false;

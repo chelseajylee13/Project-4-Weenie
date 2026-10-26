@@ -293,6 +293,62 @@
             </g>
           </g>
 
+          <g
+            id="cottage-door-trigger"
+            class="cottage-trigger cottage-door-trigger"
+            role="button"
+            tabindex="-1"
+            aria-label="Cottage door ring. Knock once to see whether the cottage answers."
+            aria-describedby="cottage-interaction-status"
+            aria-disabled="true"
+          >
+            <g class="cottage-door-ring ambient-motion" aria-hidden="true">
+              <path d="M117 478l6 7-6 7-6-7z" fill="#3b2b3d" stroke="#a17247" stroke-width="1.4"/>
+              <circle cx="117" cy="493" r="7" fill="none" stroke="#c18c4e" stroke-width="2.6"/>
+              <path d="M113 498q4 4 8 0" fill="none" stroke="#5f3f35" stroke-width="1.2"/>
+            </g>
+            <rect class="cottage-hit-area" x="88" y="445" width="66" height="101" rx="28" fill="transparent"/>
+          </g>
+
+          <g
+            id="cottage-window-trigger"
+            class="cottage-trigger cottage-window-trigger"
+            role="button"
+            tabindex="-1"
+            aria-label="Cottage window. It is quiet; perhaps the door can wake it."
+            aria-describedby="cottage-interaction-status"
+            aria-disabled="true"
+          >
+            <g class="cottage-window-response" aria-hidden="true">
+              <rect class="cottage-window-ready-glow" x="49" y="457" width="38" height="43" rx="5" fill="none" stroke="#f4c66e" stroke-width="2"/>
+              <path class="cottage-window-ready-curtain" d="M54 461h13l-1 35H53z" fill="#2c2031" stroke="#76546f" stroke-width="1"/>
+              <path class="cottage-window-ready-mark" d="m88 453 1.3 3.2 3.2 1.3-3.2 1.2-1.3 3.3-1.2-3.3-3.3-1.2 3.3-1.3z" fill="#ffd580"/>
+            </g>
+            <rect class="cottage-hit-area" x="37" y="442" width="63" height="75" rx="24" fill="transparent"/>
+          </g>
+
+          <g id="story-two-layer" class="story-two-layer" aria-hidden="true">
+            <ellipse class="story-two-cottage-haze" cx="78" cy="486" rx="68" ry="58" fill="url(#lantern-light)" filter="url(#soft-glow)" opacity="0"/>
+            <rect class="story-two-window-glow" x="50" y="457" width="36" height="43" rx="5" fill="#ffd580" filter="url(#soft-glow)" opacity="0"/>
+            <path class="story-two-window-curtain" d="M53 460h30l-1 37H53z" fill="#17121c" opacity="0"/>
+
+            <g class="story-two-shadow" opacity="0">
+              <path class="story-two-shadow-tail" d="M88 489q20 4 18 18-1 9-11 6" fill="none" stroke="#100c14" stroke-width="6" stroke-linecap="round"/>
+              <path class="story-two-shadow-body" d="M64 487c-2-10 4-17 14-19 11-2 20 4 21 14 2 12-7 20-20 20-10 0-14-5-15-15z" fill="#100c14" stroke="#60485f" stroke-width="1.3"/>
+              <g class="story-two-shadow-head">
+                <path d="M63 476c-1-10 4-18 13-21l5 7 8-7c8 5 11 14 7 23-5 10-27 10-33-2z" fill="#100c14" stroke="#60485f" stroke-width="1.3"/>
+                <path class="story-two-shadow-face" d="M70 471q5-4 9 0-5 4-9 0zM84 470q5-4 9 0-5 4-9 0z" fill="#c8aa8b" opacity=".9"/>
+              </g>
+            </g>
+
+            <path class="story-two-ribbon" d="M165 579c13-10 26-7 31 2 5 10-7 16-18 11-7-4-4-11 3-11" fill="none" stroke="#100c14" stroke-width="7" stroke-linecap="round" opacity="0"/>
+            <g class="story-two-window-spark" fill="#e8b762" opacity="0">
+              <path d="m52 451 1.3 3.2 3.2 1.3-3.2 1.2-1.3 3.3-1.2-3.3-3.3-1.2 3.3-1.3z"/>
+              <path d="m88 468 1 2.5 2.5 1-2.5 1-1 2.5-1-2.5-2.5-1 2.5-1z"/>
+              <path d="m72 507 1.1 2.8 2.8 1-2.8 1.1-1.1 2.8-1.1-2.8-2.8-1.1 2.8-1z"/>
+            </g>
+          </g>
+
           <g id="foreground-layer" filter="url(#paper-shadow-near)" aria-hidden="true">
             <path d="M0 724c42-25 88-18 137 22 36 29 73 27 112-5 49-39 96-43 141-14v117H0z" fill="#0d0a10"/>
             <path d="M0 785c20-31 34-69 41-114l6-51c16 43 18 84 5 124 24-27 45-69 62-125 9 49 2 94-22 136M390 772c-23-29-39-71-47-125l-3-38c-17 45-19 88-5 130-25-23-49-60-71-110 1 52 17 97 49 136" fill="#17121c"/>
@@ -368,17 +424,30 @@
             <button class="test-story-button" id="test-story-button" type="button">
               Test Story 1 <span>Development only</span>
             </button>
+            <button class="test-story-button" id="test-story-two-button" type="button">
+              Test Story 2 <span>Development only</span>
+            </button>
           </div>
         </div>
 
         <p class="motion-status" id="motion-status"></p>
         <p class="visually-hidden" id="playback-status" aria-live="polite"></p>
         <p class="visually-hidden" id="torch-interaction-status" aria-live="polite">The torch rests among the roots. Select it, then light the hanging lantern.</p>
+        <p class="visually-hidden" id="cottage-interaction-status" aria-live="polite">The cottage door and window wait quietly in the forest.</p>
         <audio id="ambient-audio" preload="auto" loop aria-hidden="true">
           <source src="assets/audio/ambient-midnight.wav" type="audio/wav">
         </audio>
         <audio id="story-one-audio" preload="auto" aria-hidden="true">
           <source src="assets/audio/story-one-crown.wav" type="audio/wav">
+        </audio>
+        <audio id="story-two-audio" preload="auto" aria-hidden="true">
+          <source src="assets/audio/story-two-shadow.wav" type="audio/wav">
+        </audio>
+        <audio id="cottage-knock-audio" preload="auto" aria-hidden="true">
+          <source src="assets/audio/cottage-knock.wav" type="audio/wav">
+        </audio>
+        <audio id="cottage-window-response-audio" preload="auto" aria-hidden="true">
+          <source src="assets/audio/cottage-window-response.wav" type="audio/wav">
         </audio>
         <audio id="lantern-feedback-audio" preload="auto" aria-hidden="true"></audio>
         <audio id="lantern-ignition-audio" preload="auto" aria-hidden="true">

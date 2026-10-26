@@ -128,6 +128,39 @@ The smallest proposed interaction contract is:
 
 Acceptance requires touch, mouse, Enter, and Space operation; visible focus; an effective touch target of at least 48 CSS pixels; clear pickup, near-target, unsuccessful-drop, successful-light, locked, and reset states; shared Pause/Resume and reduced-motion behavior; no accidental or duplicate story starts; replay without reload; and regression verification of the approved Story 1 visuals, audio, timing, ambience, and layout. Stories 2 and 3 remain excluded from this focused revision.
 
+### Phase 2 Story 2 — approved implementation contract
+
+*The Shadow That Escaped*, revised as *A Mischievous Shadow Gets Caught*, is an approximately eight-second audiovisual story centered on the existing crooked cottage. Its slightly enlarged shadow character uses original SVG cut-paper shapes and reads as curious, mischievous, playful, and mysterious rather than frightening. Separate head and eye movement must make its attention and reaction readable on narrow mobile screens without changing the cottage or forest composition.
+
+The approved story timeline is:
+
+1. From 0–2 seconds, the shadow peeks from the cottage, looks around as if checking whether anyone is watching, and slips outside with playful exaggeration.
+2. From 2–4.5 seconds, it makes exactly two readable hops toward the tree roots and briefly glances back at the cottage.
+3. From 4.5–6 seconds, the cottage window suddenly brightens first; the shadow then freezes, turns toward it, and widens its eyes in surprise so the cause-and-effect relationship is unmistakable.
+4. From 6–8 seconds, the caught shadow deliberately compresses into a cut-paper ribbon and returns through the cottage window.
+
+Reduced motion must preserve those four narrative beats through restrained opacity, lighting, staged hop poses, head turns, and eye emphasis rather than long travel. The story uses a dedicated eight-second original WAV containing subtle shadow movement, two hop cues, the window's call, a surprised paper accent, paper folding, and a gentle resolving chime. The existing ambient soundtrack continues beneath it at the shared ducked level, while Story 1's audio and artwork remain unchanged.
+
+The final discovery interaction will use two distinct cottage objects. The User activates the cottage door once, receiving an immediate wooden knock plus visible and audible window feedback. The answering window then becomes the second and final activation target. Activating the window before the knock must give closed-state feedback without advancing. Both targets must support touch, mouse, Enter, and Space; visible focus; non-color-only progress; accessible status messages; Escape cancellation; and effective targets of at least 48 CSS pixels at supported phone sizes.
+
+The approved Story 2 inactivity hints, at the shared progressive thresholds, are:
+
+1. “The crooked cottage seems to be listening...”
+2. “Perhaps someone is waiting behind the door.”
+3. “Give the door a knock, then follow the light.”
+
+In the combined two-story exploration clock, Story 1 retains its approved thresholds at 12, 24, and 36 seconds. The Story 2 hints appear at 18, 30, and 42 seconds. A successful knock hides and pauses further hints while the persistent window-ready state is visible.
+
+Stories 1 and 2 must remain independently discoverable. Temporary selected or primed progress may coexist while the User explores another area and must not be discarded merely by unrelated exploration. Starting either story atomically cancels the other story's incomplete trigger progress, hides hints, prevents overlap, and locks all scene interactions until the active story ends. Story 2 completion restores its cottage artwork and audio, restarts hints, unlocks both stories, and permits replay without reload. Keyboard-originated playback returns focus to the cottage door; pointer-originated playback does not force focus.
+
+The first implementation checkpoint includes only the Story 2 artwork, original audio assets, reduced-motion choreography, shared timeline ownership, and a development-only direct playback button available on localhost with `?storyTest=1`. It does not add public door or window controls, Story 2 hint selection, or final trigger-state persistence. Developer visual review is required before that interaction work begins.
+
+The full-interaction checkpoint adds one visible cut-paper door ring and two SVG controls during normal exploration. The door uses a 66-by-101-viewBox-unit hit area and the window a 63-by-75-unit hit area, providing at least 48 CSS pixels at the supported narrow portrait widths. Before the knock, activating the window produces a small movement, quiet response cue, and no progress. One accepted door knock disables the door, announces the response, shifts the curtain, outlines and pulses the window, and enables the ready-window state. Activating that ready window starts Story 2 once.
+
+Door and window feedback audio, temporary response animations, CSS ready-state motion, hint timing, and the two story timelines all follow the centralized Pause/Resume state. Cottage progress remains ready during unrelated exploration and while the User selects the Story 1 torch. Torch progress likewise remains selected during cottage exploration. Starting Story 1 clears cottage progress; starting Story 2 clears torch progress; the single global story state prevents simultaneous starts. Escape explicitly cancels selected/ready progress. Story 2 completion cancels temporary effects and audio, restores the idle cottage, restarts hints, enables replay, and returns keyboard focus to the door only for keyboard-originated cottage playback. The localhost-only Test buttons remain hidden without `?storyTest=1` and cannot appear on a public hostname.
+
+In reduced motion, cottage feedback must remain functionally obvious without relying on object travel. The quiet-window response and accepted knock use opacity-only changes with no rotation, translation, or scale. The ready window retains a high-opacity slow pulse plus a persistent dashed outline until activation, cancellation, or story start. Reduced motion must not change target enablement, pointer events, focusability, `idle` / `ready` state transitions, audio feedback, or story-start behavior.
+
 ## Saving the transcript
 
 When directed, save the complete conversation as `transcripts/spec-YYYY-MM-DD_HHMMSS.md`, label messages `Developer` and `Agent`, and confirm the path.
