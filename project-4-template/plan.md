@@ -756,11 +756,14 @@ All required Checkpoint 8 acceptance criteria now have direct Developer results 
 - These are the Developer's direct runtime results, separate from the Agent's source checks and failed-to-launch Chrome diagnostic. No physical-smartphone verification of the new public deployment is claimed.
 - All required Checkpoint 10 acceptance criteria now have reported passing Developer evidence. Checkpoint 10 is complete.
 
-**Checkpoint 10 delivery — pending:**
+**Checkpoint 10 delivery — complete:**
 
-- Commit the approved Story 3 implementation, original audio, documentation, deployment manifest, diagnostic, and saved accessible transcript.
-- Push and verify the matching GitHub Pages deployment and required Story 1–3 public assets.
-- Deployment verification does not constitute physical-smartphone testing.
+- Focused commit `539abee` (`Complete Story 3 midnight invitation`) contains the approved Story 3 implementation, original 9.5-second story audio, original 1.8-second unlock cue, deterministic builder, documentation, deployment manifest, diagnostic, and accessible transcript continuation. It was pushed to `origin/main`.
+- GitHub Pages run `40416523263` completed successfully for exact head SHA `539abee0b958486c5cc4ecd700451286ff410e37`.
+- Public HTTP checks returned 200 for `index.html`, `app.js`, and `styles.css`. The deployed HTML contains the bell-rope, invitation text, and unlock-audio markers; the deployed JavaScript contains the prerequisite completion gate and 9.5-second duration marker.
+- The exact 11,950,080-byte Pages artifact was downloaded and extracted independently. `index.html`, `app.js`, `styles.css`, ambient audio, Story 1, Story 2, Story 3, Story 3 unlock, cottage feedback, ignition, and all three lantern-step assets are present; every packaged file's SHA-256 matches the local committed source file.
+- Direct bulk CDN audio hashing matched the 6,350,444-byte ambient asset before a transport reset stopped that method. The exact successful Pages artifact provides complete byte-for-byte verification of every required runtime audio asset; no uncompleted public CDN checksum is claimed.
+- Deployment and artifact verification do not constitute rendered public-browser, listening, assistive-technology, or physical-smartphone testing. No physical-smartphone verification of this new deployment is claimed.
 
 ### [ ] Phase 2 Checkpoint 11: Complete-app peer playtest and revision
 
