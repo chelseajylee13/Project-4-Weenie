@@ -198,6 +198,14 @@ The production Story 3 trigger is one visible cut-paper rope below the distant t
 
 In the normal experience the bell rope begins with `visibility: hidden`, zero opacity, no pointer events, `tabindex="-1"`, `aria-hidden="true"`, and `aria-disabled="true"`. The controller keeps an in-memory set of successfully completed prerequisite story identities. Only the guarded master-animation completion path may add Story 1 or Story 2; trigger acceptance, Pause, an interrupted run, or a cancelled animation cannot grant progress. When and only when both identities exist, a one-time unlock sets Story 3 available, gives the tower an 1.8-second standard- or reduced-motion light response, plays its dedicated original unlock bell, reveals the rope, and resets the hint queue with Story 3's messages included. The unlocked flag remains true through prerequisite replays and resets only on page reload. The localhost development control may continue to bypass this production gate for isolated animation testing.
 
+## Checkpoint 12 final verification record — 2026-10-26
+
+- Final Developer verification supports the required runtime contract on iPhone 18 Pro, iOS 18, Safari, including incomplete-prerequisite gating, refresh/replay, story readability/timing, invitation hold/fade, portrait/short viewport behavior, and synchronized audio.
+- The final audit also records the prior Dell XPS Microsoft Edge desktop verification for reverse progression, touch interactions, invitation/replay, Pause/Resume, reduced motion, keyboard, focus, hints, and status feedback. Device-specific evidence remains labeled by tester and environment.
+- Agent technical evidence remains separate: source inspections cover state gates, timers, audio cleanup, Pause/Resume, reduced-motion branches, keyboard/focus logic, and hint gating; deployment checks cover all required runtime assets and the matching deployed `app.js` hash. The full interaction runner timed out in CDP, so it is not represented as a browser-runtime pass.
+- The Pages artifact contract includes only `index.html`, `styles.css`, `app.js`, and the 11 required runtime audio files. Source audio, build/test scripts, project documents, and transcripts remain repository-only materials.
+- No feature change is authorized by this audit. The remaining work is the separate debrief, final documentation approval/commit, and final repository/ZIP verification.
+
 ## Saving the transcript
 
 When directed, save the complete conversation as `transcripts/spec-YYYY-MM-DD_HHMMSS.md`, label messages `Developer` and `Agent`, and confirm the path.
